@@ -18,16 +18,21 @@ See [DEMO_SCRIPT.md](DEMO_SCRIPT.md) for the customer talk track and [docs/ONTOL
 
 ## Build it
 
-You need Python 3.12, `uv`, `jq`, Databricks CLI 1.14 or later, and access to a Databricks workspace with serverless compute. The workspace must have Genie, Genie One, Unity Catalog metric views, Domains, and Pages enabled.
+You need Python 3.12, `uv`, `jq`, `make`, Databricks CLI 1.14 or later, and access to a Databricks workspace with serverless compute. The workspace must have Genie, Genie One, Unity Catalog metric views, Domains, and Pages enabled.
 
-The default target uses Praneeth's Lakebase workspace. It deploys into the existing `serverless_lakebase_praneeth_catalog` catalog.
+Choose an existing Unity Catalog catalog and a serverless SQL warehouse. Authenticate with a Databricks CLI profile for your workspace.
 
 ```bash
-databricks auth login --profile fe-vm-lakebase-praneeth \
-  --host https://fevm-serverless-lakebase-praneeth.cloud.databricks.com
+databricks auth login --profile YOUR_PROFILE \
+  --host https://YOUR_WORKSPACE_HOST
 
-make deploy PROFILE=fe-vm-lakebase-praneeth TARGET=praneeth
+make deploy \
+  PROFILE=YOUR_PROFILE \
+  CATALOG=YOUR_CATALOG \
+  WAREHOUSE_ID=YOUR_SQL_WAREHOUSE_ID
 ```
+
+The default schema is `transformation_value_office`. Set `SCHEMA=YOUR_SCHEMA` in the `make` command if you want a different name. If you use the default Databricks CLI profile, you can omit `PROFILE`.
 
 The command validates the bundle and deploys the dashboard and jobs. The setup job creates the governed domain tags, synthetic data, and metric views. It applies domain tags to the catalog and workspace assets, runs data checks, and creates or updates the three Genie Agents. It also creates the domain and subdomains when the account has room.
 
@@ -36,10 +41,13 @@ If the Databricks account does not have room for the root and all three subdomai
 Run the benchmark suite after the setup job finishes.
 
 ```bash
-make benchmark PROFILE=fe-vm-lakebase-praneeth TARGET=praneeth
+make benchmark \
+  PROFILE=YOUR_PROFILE \
+  CATALOG=YOUR_CATALOG \
+  WAREHOUSE_ID=YOUR_SQL_WAREHOUSE_ID
 ```
 
-For another workspace, update the `dev` target values in `databricks.yml`, then deploy with `TARGET=dev` and the matching profile.
+The `dev` target is the default. The Makefile passes the catalog, schema, and warehouse values to the bundle without writing them into the repository.
 
 ## Import the Pages
 

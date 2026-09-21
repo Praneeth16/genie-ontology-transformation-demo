@@ -6,26 +6,31 @@ The deployer needs access to the target workspace, permission to use the serverl
 
 Pages and Domains must be enabled in the account preview settings. The deployer needs permission to create governed tag policies and needs `MANAGE DISCOVERY` to create the domain and subdomains. A Page owner or curator must review and publish the Pages.
 
-## Praneeth workspace
+## Configure a workspace
 
-The default bundle target uses these values.
+Choose values for your workspace.
 
 | Setting | Value |
 |---|---|
-| Profile | `fe-vm-lakebase-praneeth` |
-| Workspace | `https://fevm-serverless-lakebase-praneeth.cloud.databricks.com` |
-| Catalog | `serverless_lakebase_praneeth_catalog` |
-| Schema | `transformation_value_office` |
-| SQL warehouse | `4d39ac2e32b72a3a` |
+| Profile | A Databricks CLI profile for the target workspace |
+| Workspace | The target Databricks workspace URL |
+| Catalog | An existing Unity Catalog catalog |
+| Schema | `transformation_value_office` or another demo schema |
+| SQL warehouse | A serverless SQL warehouse ID |
 
 Authenticate and deploy.
 
 ```bash
-databricks auth login --profile fe-vm-lakebase-praneeth \
-  --host https://fevm-serverless-lakebase-praneeth.cloud.databricks.com
+databricks auth login --profile YOUR_PROFILE \
+  --host https://YOUR_WORKSPACE_HOST
 
-make deploy PROFILE=fe-vm-lakebase-praneeth TARGET=praneeth
+make deploy \
+  PROFILE=YOUR_PROFILE \
+  CATALOG=YOUR_CATALOG \
+  WAREHOUSE_ID=YOUR_SQL_WAREHOUSE_ID
 ```
+
+Add `SCHEMA=YOUR_SCHEMA` if you want a different schema name. The `dev` target is the default, so you do not need to pass `TARGET`.
 
 The deploy command runs four stages.
 
@@ -51,7 +56,10 @@ Follow [pages/README.md](pages/README.md) after the bundle deploys. Page review 
 Run the committed benchmark suite.
 
 ```bash
-make benchmark PROFILE=fe-vm-lakebase-praneeth TARGET=praneeth
+make benchmark \
+  PROFILE=YOUR_PROFILE \
+  CATALOG=YOUR_CATALOG \
+  WAREHOUSE_ID=YOUR_SQL_WAREHOUSE_ID
 ```
 
 The job fails if any benchmark result is wrong, incomplete, or marked for review. A benchmark run uses model inference and can take several minutes.
@@ -59,14 +67,6 @@ The job fails if any benchmark result is wrong, incomplete, or marked for review
 ## Source of truth for agents
 
 The JSON files in `src/genie` are the source of truth for the three demo agents. A deployment replaces the matching live agent configuration. Export and merge any useful workspace edits before you deploy, or the deployment will overwrite them.
-
-## Clean deployment in another workspace
-
-Edit the `dev` target in `databricks.yml`. Set an existing Unity Catalog catalog and a serverless SQL warehouse ID. Then run:
-
-```bash
-make deploy PROFILE=YOUR_PROFILE TARGET=dev
-```
 
 Do not commit personal access tokens, workspace configuration files, or exported customer data.
 

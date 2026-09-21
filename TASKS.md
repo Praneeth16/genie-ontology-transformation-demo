@@ -22,12 +22,12 @@
 ## Verification
 
 - [x] Pass local Python and JSON checks.
-- [x] Pass `databricks bundle validate` in the Praneeth workspace.
+- [x] Pass `databricks bundle validate` in a reference workspace.
 - [x] Deploy the bundle and run the data and semantic checks.
 - [x] Confirm the dashboard datasets and visualizations through the workspace API.
 - [x] Confirm all three agents and their committed context in the workspace.
 - [x] Create the four governed tag policies required by the domain design.
-- [ ] Create the live domain and subdomains. The Praneeth account returns 1,000 domains and subdomains, so no slots remain. The setup creates none of the domain records until all four required slots are available.
+- [ ] Create the live domain and subdomains in an account with four available domain slots.
 - [x] Run the benchmark job and record the result.
 - [ ] Import and publish the Pages.
 
@@ -36,24 +36,5 @@
 - [x] Complete the two plain writing review passes.
 - [x] Create the revision HTML for the demo script.
 - [x] Initialize Git and commit the repository.
-- [x] Create the public `Praneeth16/genie-ontology-transformation-demo` repository.
+- [x] Create the public repository.
 - [x] Push the main branch and verify the public URL.
-
-## Live Praneeth workspace
-
-| Asset | ID or result |
-|---|---|
-| Catalog and schema | `serverless_lakebase_praneeth_catalog.transformation_value_office` |
-| Executive dashboard | `01f1b5789f3e103cae57410028c69ae1` |
-| Value Realization Agent | `01f1b579e3e91313b260a2324551dece` |
-| Delivery Risk Agent | `01f1b579e483177a881fb7f237171b3a` |
-| Operating Performance Agent | `01f1b579e51519ca962b328a317c0464` |
-| Setup job | `243470960409207` |
-| Regression job | `296598498581033` |
-| Final setup run | `379612352068540`, passed |
-| Final benchmark run | `223972267812165`, 13 of 13 passed, 0 need review |
-| Governed tags | Enterprise Transformation and its three subdomain tags |
-| Catalog domain assignments | 24 assignments across 11 assets |
-| Workspace domain assignments | Dashboard root tag and root plus subdomain tags on all three agents |
-| Domain card | Blocked by the account domain limit. The setup made no partial domain and deleted no existing domain. |
-| Pages | Source files are committed. UI review and publication remain. |

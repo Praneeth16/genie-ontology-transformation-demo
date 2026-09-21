@@ -41,6 +41,8 @@ The deploy command runs four stages.
 
 Domains and subdomains share an account limit. The setup checks whether the account has room for the root and all three subdomains before it creates any of them. If there is not enough room, the setup keeps the governed tags, prints a warning, and continues to the Genie Agents. A curator must remove unused domains or choose another account before rerunning the domain task. The setup never deletes an existing domain.
 
+The same warning path applies when the deploying identity is not authorized to access domains. The setup keeps the governed tags and continues. Ask an account admin to enable Domains or grant `MANAGE DISCOVERY`, then rerun the setup job to create the domain and subdomains.
+
 ## Check workspace asset tags
 
 After the bundle finishes, open the Enterprise Transformation domain in Discover. Confirm that the executive dashboard has the root domain tag. Confirm that each Genie Agent has the root domain tag and its matching Value Realization, Delivery and Risk, or Operating Performance subdomain tag.

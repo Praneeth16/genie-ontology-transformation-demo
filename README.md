@@ -36,7 +36,7 @@ The default schema is `transformation_value_office`. Set `SCHEMA=YOUR_SCHEMA` in
 
 The command validates the bundle and deploys the dashboard and jobs. The setup job creates the governed domain tags, synthetic data, and metric views. It applies domain tags to the catalog and workspace assets, runs data checks, and creates or updates the three Genie Agents. It also creates the domain and subdomains when the account has room.
 
-If the Databricks account does not have room for the root and all three subdomains, the setup creates none of them. It keeps the required governed tags and continues to the agents. It does not delete an existing domain. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the recovery step.
+If the Databricks account does not have room for the root and all three subdomains, the setup creates none of them. It also skips domain creation when the deploying identity is not authorized to access domains. In both cases it keeps the required governed tags and continues to the agents. It does not delete an existing domain. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the recovery step.
 
 Run the benchmark suite after the setup job finishes.
 

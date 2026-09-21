@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.errors import InternalError
+from databricks.sdk.errors import InternalError, PermissionDenied
 from databricks.sdk.service.domains import Domain
 from databricks.sdk.service.tags import TagPolicy
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -88,10 +88,6 @@ def main() -> None:
         tag_policy.tag_key: tag_policy
         for tag_policy in client.tag_policies.list_tag_policies(page_size=500)
     }
-    existing_by_key = {
-        (domain.tag_key, domain.parent_domain_id): domain
-        for domain in client.domains.list_domains(page_size=500)
-    }
 
     root_spec = definition["root"]
     ensure_tag_policy(
@@ -115,30 +111,43 @@ def main() -> None:
             existing_tags_by_key,
         )
 
-    existing_root = existing_by_key.get((root_spec["tag_key"], None))
-    if existing_root is None:
-        missing_domain_count = 1 + len(subdomain_specs)
-    else:
-        missing_domain_count = sum(
-            (subdomain_spec["tag_key"], existing_root.domain_id) not in existing_by_key
-            for subdomain_spec in subdomain_specs
-        )
-    if len(existing_by_key) + missing_domain_count > 1000:
-        available = max(1000 - len(existing_by_key), 0)
-        print(
-            "WARNING: Domain creation was skipped before making any changes because "
-            f"the account returns {len(existing_by_key)} domains and subdomains, but "
-            f"this demo needs {missing_domain_count} more and only {available} slots "
-            "remain. The governed tags exist, and the remaining setup can continue. "
-            "Remove unused domains or use another account before running this task again."
-        )
-        return
+    try:
+        existing_by_key = {
+            (domain.tag_key, domain.parent_domain_id): domain
+            for domain in client.domains.list_domains(page_size=500)
+        }
 
-    root = upsert_domain(client, root_spec, existing_by_key)
-    if root is None:
-        return
-    for subdomain_spec in subdomain_specs:
-        upsert_domain(client, subdomain_spec, existing_by_key, root.domain_id)
+        existing_root = existing_by_key.get((root_spec["tag_key"], None))
+        if existing_root is None:
+            missing_domain_count = 1 + len(subdomain_specs)
+        else:
+            missing_domain_count = sum(
+                (subdomain_spec["tag_key"], existing_root.domain_id) not in existing_by_key
+                for subdomain_spec in subdomain_specs
+            )
+        if len(existing_by_key) + missing_domain_count > 1000:
+            available = max(1000 - len(existing_by_key), 0)
+            print(
+                "WARNING: Domain creation was skipped before making any changes because "
+                f"the account returns {len(existing_by_key)} domains and subdomains, but "
+                f"this demo needs {missing_domain_count} more and only {available} slots "
+                "remain. The governed tags exist, and the remaining setup can continue. "
+                "Remove unused domains or use another account before running this task again."
+            )
+            return
+
+        root = upsert_domain(client, root_spec, existing_by_key)
+        if root is None:
+            return
+        for subdomain_spec in subdomain_specs:
+            upsert_domain(client, subdomain_spec, existing_by_key, root.domain_id)
+    except PermissionDenied:
+        print(
+            "WARNING: Domain setup was skipped because this identity is not "
+            "authorized to access domains. The governed tags exist, and the "
+            "remaining demo setup can continue. Ask an account admin to enable "
+            "Domains or grant MANAGE DISCOVERY, then run this task again."
+        )
 
 
 if __name__ == "__main__":

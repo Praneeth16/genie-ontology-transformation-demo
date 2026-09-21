@@ -35,9 +35,9 @@
 
 - [x] Complete the two plain writing review passes.
 - [x] Create the revision HTML for the demo script.
-- [ ] Initialize Git and commit the repository.
-- [ ] Create the public `Praneeth16/genie-ontology-transformation-demo` repository.
-- [ ] Push the main branch and verify the public URL.
+- [x] Initialize Git and commit the repository.
+- [x] Create the public `Praneeth16/genie-ontology-transformation-demo` repository.
+- [x] Push the main branch and verify the public URL.
 
 ## Live Praneeth workspace
 

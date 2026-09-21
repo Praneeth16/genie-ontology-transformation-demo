@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "title": "Enterprise Transformation Value Office",
+    "domain_tags": [
+      "Enterprise Transformation"
+    ]
+  },
+  "agents": [
+    {
+      "title": "Northstar Value Realization",
+      "description": "Tracks approved targets, realized benefits, forecast value, investment, and portfolio return for the synthetic Northstar transformation.",
+      "definition": "value_realization.geniespace.json",
+      "domain_tags": [
+        "Enterprise Transformation",
+        "Enterprise Transformation/Value Realization"
+      ]
+    },
+    {
+      "title": "Northstar Delivery Risk",
+      "description": "Explains delivery health, critical risks, late milestones, ownership, and supporting steering evidence for the synthetic Northstar transformation.",
+      "definition": "delivery_risk.geniespace.json",
+      "domain_tags": [
+        "Enterprise Transformation",
+        "Enterprise Transformation/Delivery and Risk"
+      ]
+    },
+    {
+      "title": "Northstar Operating Performance",
+      "description": "Tracks operating KPIs against target by business unit for the synthetic Northstar transformation.",
+      "definition": "operating_performance.geniespace.json",
+      "domain_tags": [
+        "Enterprise Transformation",
+        "Enterprise Transformation/Operating Performance"
+      ]
+    }
+  ]
+}

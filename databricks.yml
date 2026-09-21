@@ -1,0 +1,44 @@
+bundle:
+  name: genie-ontology-transformation-demo
+
+variables:
+  catalog:
+    description: Existing Unity Catalog catalog where the demo schema will be created.
+    default: CHANGE_ME_CATALOG
+
+  schema:
+    description: Schema owned by this demo.
+    default: transformation_value_office
+
+  warehouse_id:
+    description: Serverless SQL warehouse used by the dashboard and Genie Agents.
+    default: CHANGE_ME_WAREHOUSE_ID
+
+  as_of_date:
+    description: Fixed reporting date for deterministic synthetic data.
+    default: "2026-08-31"
+
+  agent_parent_path:
+    description: Workspace folder where the setup job creates the Genie Agents.
+    default: /Workspace/Users/${workspace.current_user.userName}/genie-ontology-transformation-demo
+
+include:
+  - resources/*.yml
+
+targets:
+  praneeth:
+    default: true
+    variables:
+      catalog: serverless_lakebase_praneeth_catalog
+      schema: transformation_value_office
+      warehouse_id: 4d39ac2e32b72a3a
+    workspace:
+      host: https://fevm-serverless-lakebase-praneeth.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+  dev:
+    variables:
+      catalog: CHANGE_ME_CATALOG
+      schema: transformation_value_office
+      warehouse_id: CHANGE_ME_WAREHOUSE_ID
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

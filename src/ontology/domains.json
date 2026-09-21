@@ -1,0 +1,24 @@
+{
+  "root": {
+    "tag_key": "Enterprise Transformation",
+    "subtitle": "Value, delivery, and operating performance",
+    "description": "Governed terms, measures, data, and AI assets for enterprise transformation value realization, delivery risk, and operating performance."
+  },
+  "subdomains": [
+    {
+      "tag_key": "Value Realization",
+      "subtitle": "Approved, realized, and forecast value",
+      "description": "Business definitions and governed measures for approved value, realized value, forecast value, investment, and return."
+    },
+    {
+      "tag_key": "Delivery and Risk",
+      "subtitle": "Health, risk, milestones, and intervention",
+      "description": "Business definitions and governed assets for delivery health, risks, milestones, evidence, and executive intervention."
+    },
+    {
+      "tag_key": "Operating Performance",
+      "subtitle": "Business outcomes and target attainment",
+      "description": "Business definitions and governed measures for operating KPIs, target gaps, and attainment."
+    }
+  ]
+}

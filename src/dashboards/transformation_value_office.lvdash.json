@@ -1,0 +1,408 @@
+{
+  "datasets": [
+    {
+      "name": "ds_value_summary",
+      "displayName": "Value realization summary",
+      "queryLines": [
+        "SELECT MEASURE(`Target Value`) AS target_value_usd,\n",
+        "       MEASURE(`Realized Value to Date`) AS realized_value_usd,\n",
+        "       MEASURE(`Forecast Value at Completion`) AS forecast_value_usd,\n",
+        "       MEASURE(`Value at Risk`) AS value_at_risk_usd,\n",
+        "       MEASURE(`Forecast Attainment`) AS forecast_attainment\n",
+        "FROM mv_value_realization"
+      ]
+    },
+    {
+      "name": "ds_delivery_summary",
+      "displayName": "Delivery health summary",
+      "queryLines": [
+        "SELECT MEASURE(`Red Initiatives`) AS red_initiatives,\n",
+        "       MEASURE(`Open Critical Risks`) AS open_critical_risks,\n",
+        "       MEASURE(`Overdue Critical Risks`) AS overdue_critical_risks,\n",
+        "       MEASURE(`Overdue Milestones`) AS overdue_milestones\n",
+        "FROM mv_delivery_health"
+      ]
+    },
+    {
+      "name": "ds_value_by_bu",
+      "displayName": "Value at risk by business unit",
+      "queryLines": [
+        "SELECT `Business Unit` AS business_unit,\n",
+        "       MEASURE(`Target Value`) AS target_value_usd,\n",
+        "       MEASURE(`Forecast Value at Completion`) AS forecast_value_usd,\n",
+        "       MEASURE(`Value at Risk`) AS value_at_risk_usd\n",
+        "FROM mv_value_realization\n",
+        "GROUP BY `Business Unit`\n",
+        "ORDER BY value_at_risk_usd DESC"
+      ]
+    },
+    {
+      "name": "ds_interventions",
+      "displayName": "Executive interventions",
+      "queryLines": [
+        "SELECT initiative_id, initiative_name, business_unit, initiative_owner,\n",
+        "       days_slipped, overdue_critical_risk_count, value_at_risk_usd,\n",
+        "       latest_document_title, latest_document_summary\n",
+        "FROM v_initiative_current\n",
+        "WHERE health = 'Red'\n",
+        "ORDER BY overdue_critical_risk_count DESC, days_slipped DESC"
+      ]
+    },
+    {
+      "name": "ds_operating_gaps",
+      "displayName": "Operating KPIs below target",
+      "queryLines": [
+        "SELECT business_unit, kpi_name, unit, actual_value, target_value,\n",
+        "       favorable_gap, attainment_ratio\n",
+        "FROM v_operating_kpi_current\n",
+        "WHERE favorable_gap < 0\n",
+        "ORDER BY attainment_ratio, business_unit, kpi_name"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "executive_value_office",
+      "displayName": "Executive value office",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Northstar enterprise transformation value office\n",
+                "\n",
+                "**Value, delivery, and operating outcomes as at 31 August 2026.** The dashboard uses the same governed metric views as the three Genie Agents. Open the agents to ask why a measure moved and inspect the cited business definition or source evidence.\n",
+                "\n",
+                "*Northstar Group and all data in this dashboard are synthetic.*"
+              ]
+            }
+          },
+          "position": {"x": 0, "y": 0, "width": 12, "height": 4}
+        },
+        {
+          "widget": {
+            "name": "counter-target",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_value_summary",
+                  "fields": [
+                    {"name": "target_value_usd", "expression": "SUM(`target_value_usd`)"}
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "target_value_usd",
+                  "displayName": "Approved value target",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {"type": "max", "places": 1}
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Approved value target",
+                "showDescription": true,
+                "description": "Full approved portfolio value"
+              }
+            }
+          },
+          "position": {"x": 0, "y": 4, "width": 3, "height": 3}
+        },
+        {
+          "widget": {
+            "name": "counter-realized",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_value_summary",
+                  "fields": [
+                    {"name": "realized_value_usd", "expression": "SUM(`realized_value_usd`)"}
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "realized_value_usd",
+                  "displayName": "Realized value to date",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {"type": "max", "places": 1}
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Realized value to date",
+                "showDescription": true,
+                "description": "Value validated by finance"
+              }
+            }
+          },
+          "position": {"x": 3, "y": 4, "width": 3, "height": 3}
+        },
+        {
+          "widget": {
+            "name": "counter-risk",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_value_summary",
+                  "fields": [
+                    {"name": "value_at_risk_usd", "expression": "SUM(`value_at_risk_usd`)"}
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "value_at_risk_usd",
+                  "displayName": "Value at risk",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {"type": "max", "places": 1}
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Value at risk",
+                "showDescription": true,
+                "description": "Positive gap between target and forecast"
+              }
+            }
+          },
+          "position": {"x": 6, "y": 4, "width": 3, "height": 3}
+        },
+        {
+          "widget": {
+            "name": "counter-red",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_delivery_summary",
+                  "fields": [
+                    {"name": "red_initiatives", "expression": "SUM(`red_initiatives`)"}
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "red_initiatives",
+                  "displayName": "Red initiatives",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {"type": "max", "places": 0}
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Red initiatives",
+                "showDescription": true,
+                "description": "Initiatives needing executive attention"
+              }
+            }
+          },
+          "position": {"x": 9, "y": 4, "width": 3, "height": 3}
+        },
+        {
+          "widget": {
+            "name": "bar-value-risk",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_value_by_bu",
+                  "fields": [
+                    {"name": "business_unit", "expression": "`business_unit`"},
+                    {"name": "value_at_risk_usd", "expression": "`value_at_risk_usd`"}
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "y": {
+                  "fieldName": "business_unit",
+                  "displayName": "Business unit",
+                  "scale": {"type": "categorical", "sort": {"by": "value", "reverse": true}}
+                },
+                "x": {
+                  "fieldName": "value_at_risk_usd",
+                  "displayName": "Value at risk",
+                  "scale": {"type": "quantitative"},
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {"type": "max", "places": 1}
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Value at risk by business unit",
+                "showDescription": true,
+                "description": "The approved target less the forecast value, with gains above target floored at zero"
+              }
+            }
+          },
+          "position": {"x": 0, "y": 7, "width": 6, "height": 6}
+        },
+        {
+          "widget": {
+            "name": "table-operating-gaps",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_operating_gaps",
+                  "fields": [
+                    {"name": "business_unit", "expression": "`business_unit`"},
+                    {"name": "kpi_name", "expression": "`kpi_name`"},
+                    {"name": "actual_value", "expression": "`actual_value`"},
+                    {"name": "target_value", "expression": "`target_value`"},
+                    {"name": "attainment_ratio", "expression": "`attainment_ratio`"}
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {"fieldName": "business_unit", "displayName": "Business unit", "booleanValues": ["false", "true"]},
+                  {"fieldName": "kpi_name", "displayName": "KPI", "booleanValues": ["false", "true"]},
+                  {"fieldName": "actual_value", "displayName": "Actual", "booleanValues": ["false", "true"]},
+                  {"fieldName": "target_value", "displayName": "Target", "booleanValues": ["false", "true"]},
+                  {
+                    "fieldName": "attainment_ratio",
+                    "displayName": "Attainment",
+                    "booleanValues": ["false", "true"],
+                    "format": {"type": "number-percent", "decimalPlaces": {"type": "max", "places": 1}}
+                  }
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 10,
+              "frame": {
+                "showTitle": true,
+                "title": "Operating KPIs below target",
+                "showDescription": true,
+                "description": "Only August 2026 KPIs with an unfavorable gap"
+              }
+            }
+          },
+          "position": {"x": 6, "y": 7, "width": 6, "height": 6}
+        },
+        {
+          "widget": {
+            "name": "table-interventions",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_interventions",
+                  "fields": [
+                    {"name": "initiative_id", "expression": "`initiative_id`"},
+                    {"name": "initiative_name", "expression": "`initiative_name`"},
+                    {"name": "initiative_owner", "expression": "`initiative_owner`"},
+                    {"name": "days_slipped", "expression": "`days_slipped`"},
+                    {"name": "overdue_critical_risk_count", "expression": "`overdue_critical_risk_count`"},
+                    {"name": "value_at_risk_usd", "expression": "`value_at_risk_usd`"},
+                    {"name": "latest_document_title", "expression": "`latest_document_title`"},
+                    {"name": "latest_document_summary", "expression": "`latest_document_summary`"}
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {"fieldName": "initiative_id", "displayName": "ID", "booleanValues": ["false", "true"]},
+                  {"fieldName": "initiative_name", "displayName": "Initiative", "booleanValues": ["false", "true"]},
+                  {"fieldName": "initiative_owner", "displayName": "Owner", "booleanValues": ["false", "true"]},
+                  {"fieldName": "days_slipped", "displayName": "Days slipped", "booleanValues": ["false", "true"]},
+                  {"fieldName": "overdue_critical_risk_count", "displayName": "Overdue critical risks", "booleanValues": ["false", "true"]},
+                  {
+                    "fieldName": "value_at_risk_usd",
+                    "displayName": "Value at risk",
+                    "booleanValues": ["false", "true"],
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {"type": "max", "places": 1}
+                    }
+                  },
+                  {"fieldName": "latest_document_title", "displayName": "Evidence", "booleanValues": ["false", "true"]},
+                  {"fieldName": "latest_document_summary", "displayName": "Latest steering context", "booleanValues": ["false", "true"]}
+                ]
+              },
+              "invisibleColumns": [],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 10,
+              "frame": {
+                "showTitle": true,
+                "title": "Executive intervention list",
+                "showDescription": true,
+                "description": "Red initiatives ranked by overdue critical risks and delay"
+              }
+            }
+          },
+          "position": {"x": 0, "y": 13, "width": 12, "height": 8}
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED",
+      "widgetTitleFontSize": 16
+    }
+  }
+}

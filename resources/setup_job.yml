@@ -1,0 +1,71 @@
+resources:
+  jobs:
+    setup_transformation_value_office:
+      name: Enterprise Transformation Value Office setup
+      description: >-
+        Builds deterministic synthetic data, creates governed metric views,
+        validates the business story, and creates or updates three Genie Agents.
+
+      environments:
+        - environment_key: serverless
+          spec:
+            client: "4"
+            dependencies:
+              - databricks-sdk>=0.77.0
+
+      tasks:
+        - task_key: deploy_domains
+          environment_key: serverless
+          spark_python_task:
+            python_file: ../src/ontology/deploy_domains.py
+            parameters:
+              - --definition=${workspace.file_path}/src/ontology/domains.json
+
+        - task_key: build_data_and_semantics
+          depends_on:
+            - task_key: deploy_domains
+          environment_key: serverless
+          spark_python_task:
+            python_file: ../src/data/build_demo.py
+            parameters:
+              - --catalog=${var.catalog}
+              - --schema=${resources.schemas.transformation_demo.name}
+              - --as-of-date=${var.as_of_date}
+
+        - task_key: validate_demo
+          depends_on:
+            - task_key: build_data_and_semantics
+          environment_key: serverless
+          spark_python_task:
+            python_file: ../src/data/validate_demo.py
+            parameters:
+              - --catalog=${var.catalog}
+              - --schema=${resources.schemas.transformation_demo.name}
+              - --as-of-date=${var.as_of_date}
+
+        - task_key: deploy_genie_agents
+          depends_on:
+            - task_key: validate_demo
+          environment_key: serverless
+          spark_python_task:
+            python_file: ../src/genie/deploy_agents.py
+            parameters:
+              - --catalog=${var.catalog}
+              - --schema=${resources.schemas.transformation_demo.name}
+              - --warehouse-id=${var.warehouse_id}
+              - --manifest=${workspace.file_path}/src/genie/manifest.json
+              - --definition-dir=${workspace.file_path}/src/genie
+              - --parent-path=${var.agent_parent_path}
+
+        - task_key: tag_workspace_assets
+          depends_on:
+            - task_key: deploy_genie_agents
+          environment_key: serverless
+          spark_python_task:
+            python_file: ../src/ontology/tag_workspace_assets.py
+            parameters:
+              - --dashboard-id=${resources.dashboards.transformation_value_office.id}
+              - --manifest=${workspace.file_path}/src/genie/manifest.json
+
+      queue:
+        enabled: true

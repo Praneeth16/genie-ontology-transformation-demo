@@ -1,0 +1,26 @@
+resources:
+  jobs:
+    regression_test_genie_agents:
+      name: Enterprise Transformation Value Office regression tests
+      description: >-
+        Runs the committed benchmark questions for all three Genie Agents and
+        fails when a result is wrong or still needs review.
+
+      environments:
+        - environment_key: serverless
+          spec:
+            client: "4"
+            dependencies:
+              - databricks-sdk>=0.77.0
+
+      tasks:
+        - task_key: run_agent_benchmarks
+          environment_key: serverless
+          spark_python_task:
+            python_file: ../src/genie/run_benchmarks.py
+            parameters:
+              - --manifest=${workspace.file_path}/src/genie/manifest.json
+              - --timeout-seconds=1800
+
+      queue:
+        enabled: true

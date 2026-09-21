@@ -1,0 +1,160 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "12000000000000000000000000000000",
+        "question": ["Where does the executive committee need to intervene this month?"]
+      },
+      {
+        "id": "12000000000000000000000000000001",
+        "question": ["Which initiatives are red and why?"]
+      },
+      {
+        "id": "12000000000000000000000000000002",
+        "question": ["Which critical risks are overdue and who owns them?"]
+      },
+      {
+        "id": "12000000000000000000000000000003",
+        "question": ["Which milestones are overdue?"]
+      },
+      {
+        "id": "12000000000000000000000000000004",
+        "question": ["What evidence explains the network footprint status?"]
+      },
+      {
+        "id": "12000000000000000000000000000005",
+        "question": ["Show delivery health by business unit."]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "${catalog}.${schema}.mv_delivery_health",
+        "column_configs": [
+          {
+            "column_name": "Initiative",
+            "synonyms": ["program", "project", "transformation initiative"],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "Health",
+            "synonyms": ["RAG", "traffic light", "status"],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "Initiative Owner",
+            "synonyms": ["owner", "accountable lead"],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "${catalog}.${schema}.v_initiative_current"
+      },
+      {
+        "identifier": "${catalog}.${schema}.risks"
+      },
+      {
+        "identifier": "${catalog}.${schema}.milestones"
+      },
+      {
+        "identifier": "${catalog}.${schema}.portfolio_documents"
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "32000000000000000000000000000000",
+        "content": [
+          "This agent covers delivery health and intervention decisions for Northstar Group, a fictional enterprise. All data is synthetic. Use mv_delivery_health for counts and grouped portfolio analysis. Use v_initiative_current for one row per initiative and its latest evidence summary. Use risks for individual risk details. Use milestones for dates and owners. Use portfolio_documents for the full synthetic steering text. Red means the initiative needs executive attention. Amber means the initiative needs active management. Green means it is on plan. A risk is overdue when its due date is before 31 August 2026 and its status is not Closed. Do not treat an open risk as proof that value has been lost. When asked where to intervene, rank red initiatives by overdue critical risks, days slipped, and value at risk. Give the owner and the next decision or mitigation. Cite the source document title when evidence is available. If the data does not support a cause, say that the cause is not recorded."
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "22000000000000000000000000000000",
+        "question": ["Show the portfolio delivery health summary."],
+        "sql": ["SELECT MEASURE(`Initiative Count`) AS initiatives, MEASURE(`Red Initiatives`) AS red_initiatives, MEASURE(`Amber Initiatives`) AS amber_initiatives, MEASURE(`Open Critical Risks`) AS open_critical_risks, MEASURE(`Overdue Critical Risks`) AS overdue_critical_risks, MEASURE(`Overdue Milestones`) AS overdue_milestones, MEASURE(`Milestone Completion`) AS milestone_completion FROM ${catalog}.${schema}.mv_delivery_health"],
+        "usage_guidance": ["Use this as the leadership delivery summary."]
+      },
+      {
+        "id": "22000000000000000000000000000001",
+        "question": ["Where does the executive committee need to intervene this month?"],
+        "sql": ["SELECT initiative_id, initiative_name, business_unit, executive_sponsor, initiative_owner, health, days_slipped, overdue_critical_risk_count, overdue_milestone_count, value_at_risk_usd, latest_document_title, latest_document_summary FROM ${catalog}.${schema}.v_initiative_current WHERE health = 'Red' ORDER BY overdue_critical_risk_count DESC, days_slipped DESC, value_at_risk_usd DESC"],
+        "usage_guidance": ["Start with red initiatives. Explain the reason from the latest evidence and name the owner."]
+      },
+      {
+        "id": "22000000000000000000000000000002",
+        "question": ["Which critical risks are overdue and who owns them?"],
+        "sql": ["SELECT risk_id, initiative_id, risk_title, risk_status, due_date, risk_owner, mitigation_action, source_document FROM ${catalog}.${schema}.risks WHERE severity = 'Critical' AND risk_status <> 'Closed' AND due_date < DATE'2026-08-31' ORDER BY due_date, risk_id"],
+        "usage_guidance": ["Return the owner, mitigation, and evidence source so the list can drive a meeting."]
+      },
+      {
+        "id": "22000000000000000000000000000003",
+        "question": ["Which milestones are overdue?"],
+        "sql": ["SELECT milestone_id, initiative_id, milestone_name, planned_date, milestone_owner FROM ${catalog}.${schema}.milestones WHERE milestone_status = 'Overdue' ORDER BY planned_date, initiative_id"],
+        "usage_guidance": ["Do not include due soon or upcoming milestones."]
+      },
+      {
+        "id": "22000000000000000000000000000004",
+        "question": ["What evidence explains the network footprint status?"],
+        "sql": ["SELECT document_title, document_type, document_date, document_text, document_owner FROM ${catalog}.${schema}.portfolio_documents WHERE initiative_id = 'TVO-003' ORDER BY document_date DESC"],
+        "usage_guidance": ["Quote the synthetic steering evidence and identify the document."]
+      }
+    ]
+  },
+  "benchmarks": {
+    "questions": [
+      {
+        "id": "42000000000000000000000000000000",
+        "question": ["How many initiatives are red?"],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT MEASURE(`Red Initiatives`) AS red_initiatives FROM ${catalog}.${schema}.mv_delivery_health"]
+          }
+        ],
+        "evaluation_note": ["The answer must return four red initiatives."]
+      },
+      {
+        "id": "42000000000000000000000000000001",
+        "question": ["List the overdue critical risks."],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT risk_id, initiative_id, risk_title, due_date, risk_owner FROM ${catalog}.${schema}.risks WHERE severity = 'Critical' AND risk_status <> 'Closed' AND due_date < DATE'2026-08-31' ORDER BY risk_id"]
+          }
+        ],
+        "evaluation_note": ["The result must include RSK-001, RSK-003, RSK-005, and RSK-007."]
+      },
+      {
+        "id": "42000000000000000000000000000002",
+        "question": ["Which red initiative is most delayed?"],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT initiative_id, initiative_name, days_slipped, initiative_owner FROM ${catalog}.${schema}.v_initiative_current WHERE health = 'Red' ORDER BY days_slipped DESC LIMIT 1"]
+          }
+        ],
+        "evaluation_note": ["The answer must identify TVO-012 with 105 days slipped."]
+      },
+      {
+        "id": "42000000000000000000000000000003",
+        "question": ["Show red initiatives by business unit."],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT `Business Unit`, MEASURE(`Red Initiatives`) AS red_initiatives FROM ${catalog}.${schema}.mv_delivery_health GROUP BY `Business Unit` HAVING MEASURE(`Red Initiatives`) > 0 ORDER BY `Business Unit`"]
+          }
+        ],
+        "evaluation_note": ["Use the governed Red Initiatives measure and return only business units with red work."]
+      }
+    ]
+  }
+}

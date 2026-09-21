@@ -1,0 +1,8 @@
+resources:
+  dashboards:
+    transformation_value_office:
+      display_name: Enterprise Transformation Value Office
+      file_path: ../src/dashboards/transformation_value_office.lvdash.json
+      warehouse_id: ${var.warehouse_id}
+      dataset_catalog: ${var.catalog}
+      dataset_schema: ${resources.schemas.transformation_demo.name}

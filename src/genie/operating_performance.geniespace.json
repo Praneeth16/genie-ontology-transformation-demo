@@ -1,0 +1,148 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "13000000000000000000000000000000",
+        "question": ["Which operating KPIs are below target in August 2026?"]
+      },
+      {
+        "id": "13000000000000000000000000000001",
+        "question": ["Show EBITDA margin against target by business unit."]
+      },
+      {
+        "id": "13000000000000000000000000000002",
+        "question": ["How has forecast accuracy changed since January 2025?"]
+      },
+      {
+        "id": "13000000000000000000000000000003",
+        "question": ["Which business unit has the lowest on time delivery attainment?"]
+      },
+      {
+        "id": "13000000000000000000000000000004",
+        "question": ["Compare working capital days with target."]
+      },
+      {
+        "id": "13000000000000000000000000000005",
+        "question": ["Show the cost to serve trend by business unit."]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "${catalog}.${schema}.mv_operating_performance",
+        "column_configs": [
+          {
+            "column_name": "Business Unit",
+            "synonyms": ["division", "BU"],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "KPI",
+            "synonyms": ["metric", "operating measure"],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "${catalog}.${schema}.v_operating_kpi_current"
+      },
+      {
+        "identifier": "${catalog}.${schema}.operating_kpi_monthly"
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "33000000000000000000000000000000",
+        "content": [
+          "This agent covers operating performance for Northstar Group, a fictional enterprise. All data is synthetic. Use mv_operating_performance for governed measures and trends. Use v_operating_kpi_current for the latest row for each KPI and business unit. Use operating_kpi_monthly only when a question needs raw monthly values. The latest month is August 2026. Never add or average different KPIs because their units differ. Compare Actual with Target only within one KPI. Favorable Gap already accounts for direction. A positive Favorable Gap is good. EBITDA margin, forecast accuracy, on time delivery, and net promoter score are better when higher. Working capital days and cost to serve are better when lower. When comparing business units, name the KPI and unit. For trends, show the first month, the latest month, and the change. Do not claim that an operating KPI changed because of a transformation initiative. This data shows association, not cause."
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "23000000000000000000000000000000",
+        "question": ["Which operating KPIs are below target in August 2026?"],
+        "sql": ["SELECT business_unit, kpi_name, unit, actual_value, target_value, favorable_gap, attainment_ratio FROM ${catalog}.${schema}.v_operating_kpi_current WHERE favorable_gap < 0 ORDER BY attainment_ratio, business_unit, kpi_name"],
+        "usage_guidance": ["Use Favorable Gap because it handles KPIs where lower is better."]
+      },
+      {
+        "id": "23000000000000000000000000000001",
+        "question": ["Show EBITDA margin against target by business unit."],
+        "sql": ["SELECT `Business Unit`, MEASURE(`Actual`) AS actual_margin, MEASURE(`Target`) AS target_margin, MEASURE(`Favorable Gap`) AS favorable_gap FROM ${catalog}.${schema}.mv_operating_performance WHERE `KPI` = 'EBITDA margin' AND `Month` = DATE'2026-08-01' GROUP BY `Business Unit` ORDER BY actual_margin DESC"],
+        "usage_guidance": ["The values are percentages in the source, not fractions."]
+      },
+      {
+        "id": "23000000000000000000000000000002",
+        "question": ["How has forecast accuracy changed since January 2025?"],
+        "sql": ["SELECT `Month`, `Business Unit`, MEASURE(`Actual`) AS forecast_accuracy, MEASURE(`Target`) AS target FROM ${catalog}.${schema}.mv_operating_performance WHERE `KPI` = 'Forecast accuracy' GROUP BY `Month`, `Business Unit` ORDER BY `Month`, `Business Unit`"],
+        "usage_guidance": ["Keep business units separate and show the full monthly period."]
+      },
+      {
+        "id": "23000000000000000000000000000003",
+        "question": ["Which business unit has the lowest on time delivery attainment?"],
+        "sql": ["SELECT business_unit, actual_value, target_value, attainment_ratio FROM ${catalog}.${schema}.v_operating_kpi_current WHERE kpi_name = 'On time delivery' ORDER BY attainment_ratio LIMIT 1"],
+        "usage_guidance": ["Use the latest current view for a point in time ranking."]
+      },
+      {
+        "id": "23000000000000000000000000000004",
+        "question": ["Compare working capital days with target."],
+        "sql": ["SELECT `Business Unit`, MEASURE(`Actual`) AS actual_days, MEASURE(`Target`) AS target_days, MEASURE(`Favorable Gap`) AS favorable_gap_days, MEASURE(`Attainment`) AS attainment FROM ${catalog}.${schema}.mv_operating_performance WHERE `KPI` = 'Working capital days' AND `Month` = DATE'2026-08-01' GROUP BY `Business Unit` ORDER BY attainment DESC"],
+        "usage_guidance": ["Lower working capital days are better. Use Favorable Gap and Attainment instead of reversing the interpretation yourself."]
+      }
+    ]
+  },
+  "benchmarks": {
+    "questions": [
+      {
+        "id": "43000000000000000000000000000000",
+        "question": ["Show the latest EBITDA margin against target by business unit."],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT business_unit, actual_value, target_value FROM ${catalog}.${schema}.v_operating_kpi_current WHERE kpi_name = 'EBITDA margin' ORDER BY business_unit"]
+          }
+        ],
+        "evaluation_note": ["The result must contain the four business units with the August 2026 actual and target values."]
+      },
+      {
+        "id": "43000000000000000000000000000001",
+        "question": ["Show the monthly forecast accuracy trend by business unit."],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT `Month`, `Business Unit`, MEASURE(`Actual`) AS forecast_accuracy FROM ${catalog}.${schema}.mv_operating_performance WHERE `KPI` = 'Forecast accuracy' GROUP BY `Month`, `Business Unit` ORDER BY `Month`, `Business Unit`"]
+          }
+        ],
+        "evaluation_note": ["The result must keep each business unit separate across the full monthly period."]
+      },
+      {
+        "id": "43000000000000000000000000000002",
+        "question": ["Which business units are below the working capital days target?"],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT business_unit, actual_value, target_value, favorable_gap FROM ${catalog}.${schema}.v_operating_kpi_current WHERE kpi_name = 'Working capital days' AND favorable_gap < 0 ORDER BY business_unit"]
+          }
+        ],
+        "evaluation_note": ["Because lower is better, a negative favorable gap means the actual days are above target."]
+      },
+      {
+        "id": "43000000000000000000000000000003",
+        "question": ["Which business unit has the lowest on time delivery attainment?"],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT business_unit, actual_value, target_value, attainment_ratio FROM ${catalog}.${schema}.v_operating_kpi_current WHERE kpi_name = 'On time delivery' ORDER BY attainment_ratio LIMIT 1"]
+          }
+        ],
+        "evaluation_note": ["Return one business unit using the latest current view."]
+      }
+    ]
+  }
+}

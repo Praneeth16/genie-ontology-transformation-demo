@@ -2,7 +2,7 @@
 
 ## Audience
 
-The main audience is a Bain team that wants to show enterprise leaders how governed data and business context can support a transformation value office. The customer audience can include a chief transformation officer, a chief financial officer, business unit leaders, and data leaders.
+The main audience is a Bain team that wants to show enterprise leaders how governed data and business context can support a transformation value office. The customer audience can include transformation leaders and executive sponsors. It can also include business unit and data leaders.
 
 ## Business setting
 

@@ -12,7 +12,7 @@ All expected results refer to the synthetic Northstar data as of 31 August 2026.
 |---|---|---|---|
 | 1 | How is the Northstar transformation portfolio performing against the approved value case, and where should leadership intervene this month? | Genie One | One question can bring together governed value measures, delivery status, and management evidence. |
 | 2 | Which strategic themes drive the gap to plan and the value at risk? | Value Realization Agent | Leaders can move from the portfolio result to the themes behind it without changing the measure definition. |
-| 3 | Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | A user can check a financial signal against risks, milestones, and documents. |
+| 3 | Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | A user can check a value signal against risks, milestones, and documents. |
 | 4 | Which owners have overdue critical risks or milestones, and what action is due next? | Delivery Risk Agent | The answer connects an issue to an accountable person and a recorded mitigation. |
 | 5 | Which operating KPIs are below target in the business units with red initiatives? | Genie One | A user can compare portfolio execution with operating results without claiming causation. |
 | 6 | What sources and definitions did you use? | Genie One | The user can inspect citations, owners, business definitions, and the governed calculation. |
@@ -29,7 +29,7 @@ All expected results refer to the synthetic Northstar data as of 31 August 2026.
 | Which initiatives have the largest protectable value? | Value Realization Agent | Rank initiatives with positive value at risk. Include the owner, health, target, forecast, and value at risk. |
 | Which value types contribute most to the current forecast shortfall? | Value Realization Agent | Group value at risk by revenue, cost, working capital, and margin. |
 | Is the forecast return still above the approved investment case? | Value Realization Agent | Show approved investment, forecast value, net forecast benefit, and forecast return. State that this is a forecast, not realized return. |
-| Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | Match the largest value gaps with open risks and the latest relevant document. Do not treat the document as proof of financial loss. |
+| Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | Match the largest value gaps with open risks and the latest relevant document. Do not treat the document as proof that value was lost. |
 | What changed in the portfolio since the previous monthly review, and which decisions should leaders make now? | Genie One | Summarize the monthly value change, current red work, overdue items, and recorded decision needs. |
 
 ## Strategic theme and initiative diagnosis

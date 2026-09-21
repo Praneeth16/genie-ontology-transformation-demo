@@ -31,7 +31,7 @@ Say:
 
 > Northstar Group is a fictional enterprise with twelve transformation initiatives. Its leadership team has approved 645 million dollars of value. The team needs one clear view of value, delivery risk, and operating outcomes. All data in this demo is synthetic.
 
-> Northstar's finance team and transformation office should not spend the executive review reconciling different numbers and status reports. Business unit leaders need answers that use the same definitions and source records.
+> Northstar's transformation office should not spend the executive review reconciling different numbers and status reports. Business unit leaders need answers that use the same definitions and source records.
 
 > The goal is a review where leaders can move from a portfolio signal to its driver and source evidence. They can then see the owner and next decision. People have defined the value and delivery measures in Unity Catalog. They have also defined KPI attainment. The dashboard, Genie Agents, and Genie One can use that shared context.
 
@@ -51,7 +51,7 @@ Follow Network footprint redesign for the rest of the demo. This initiative has 
 
 Say:
 
-> This question crosses finance, delivery, and operating context. Genie One searched the Genie Ontology, selected sources that I can access, and returned one answer. The citation icons show which sources supported each part.
+> This question crosses value, delivery, and operating context. Genie One searched the Genie Ontology, selected sources that I can access, and returned one answer. The citation icons show which sources supported each part.
 
 > We have detected the signal. The next steps will explain it and connect it to recorded evidence. We will then identify the action and test the answer.
 
@@ -91,7 +91,7 @@ Open the Northstar Value Realization Agent and ask:
 
 Check that the answer gives a ranked list with initiative, business unit, owner, health, target, forecast, and value at risk.
 
-Keep Network footprint redesign visible when it appears. The next section will connect its financial signal to delivery evidence and an executive decision.
+Keep Network footprint redesign visible when it appears. The next section will connect its value signal to delivery evidence and an executive decision.
 
 Open the generated SQL.
 
@@ -143,7 +143,7 @@ Say:
 
 > We started with a portfolio value signal. Leadership now has the accountable owner, the recorded next action, and the decision that is due.
 
-Do not claim that the document proves a financial loss. It records the reason for intervention.
+Do not claim that the document proves that value was lost. It records the reason for intervention.
 
 ## 6. Connect the portfolio to operating outcomes. Two minutes.
 

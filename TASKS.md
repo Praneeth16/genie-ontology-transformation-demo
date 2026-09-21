@@ -1,41 +1,59 @@
 # Build status
 
-## Research
+Last updated 21 September 2026.
 
-- [x] Review the current public Genie Ontology documentation.
-- [x] Review public guidance for Unity Catalog semantics, metric views, Domains, Pages, certification, and benchmarks.
-- [x] Review internal demo guidance and keep internal links out of the public repository.
-- [x] Inspect the reference demo and capture the citation experience in the script.
+## Verified locally
 
-## Build
+These pass with `make check` and `databricks bundle validate`, with no workspace needed for
+the first three.
 
-- [x] Create deterministic synthetic transformation data.
-- [x] Create three governed metric views.
-- [x] Add table and column descriptions, keys, and certification signals.
-- [x] Create three focused Genie Agent definitions.
-- [x] Add verified SQL and benchmark questions to each agent.
-- [x] Create the executive AI/BI dashboard.
-- [x] Add Page source files and import instructions.
-- [x] Add data checks and the agent benchmark job.
-- [x] Write the external demo script and question bank.
+- [x] Ruff and byte compile checks for `src` and `tests`.
+- [x] Metric view YAML renders, parses, and holds its contract: version 1.1, the `fields`
+      keyword, a business definition and display name on every field and measure, no
+      undeclared or unused joins, and a complete order, range, and semiadditive rule on every
+      window measure.
+- [x] Genie Agent and dashboard JSON parse.
+- [x] `databricks bundle validate` passes for the `dev` target.
 
-## Verification
+## Verified in a workspace before the joins and window rework
 
-- [x] Pass local Python and JSON checks.
-- [x] Pass `databricks bundle validate` in a reference workspace.
-- [x] Deploy the bundle and run the data and semantic checks.
-- [x] Confirm the dashboard datasets and visualizations through the workspace API.
-- [x] Confirm all three agents and their committed context in the workspace.
-- [x] Create the four governed tag policies required by the domain design.
+These were confirmed against the earlier version of the semantic layer, which flattened the
+entity graph into a single SQL view.
+
+- [x] Deployed the bundle and passed the data and semantic checks.
+- [x] Confirmed the dashboard datasets and visualizations through the workspace API.
+- [x] Confirmed all three agents and their committed context in the workspace.
+- [x] Created the four governed tag policies required by the domain design.
+- [x] Ran the benchmark job and recorded the result.
+- [x] Deployed from a clean public clone into a second workspace and passed all benchmarks.
+
+## Verified in a workspace after the joins and window rework
+
+Deployed to a live workspace on 21 September 2026, into a clean schema.
+
+- [x] `make deploy` creates all four metric views, including the `joins` blocks and the
+      window measures.
+- [x] The governed measures return the committed values: 645 million dollar target,
+      615.18 million dollar forecast, 36.84 million dollars at risk, 95.4 percent attainment.
+- [x] `mv_value_trend` period end measures return one closing row per quarter, rising to the
+      508.36 million dollar August closing and never exceeding the approved target.
+- [x] The certification tags apply to all twelve curated tables and views, now that the
+      metric views are tagged as `VIEW` rather than `TABLE`.
+- [x] Domain tag membership matches the design: 16, 6, 9, and 3 assets.
+- [x] `make benchmark` passes all 14 committed questions. One Operating Performance question
+      failed on the first attempt and passed on the retry, so the suite is not deterministic.
+      See the note in `docs/DEPLOYMENT.md`.
+
+## Needs a workspace run
+
 - [ ] Create the live domain and subdomains in an account with four available domain slots.
-- [x] Run the benchmark job and record the result.
-- [x] Deploy from a clean public clone into a second workspace and pass all 13 benchmarks.
 - [ ] Import and publish the Pages.
 
 ## Publication
 
-- [x] Complete the two plain writing review passes.
+- [x] Complete the plain writing review passes.
 - [x] Create the revision HTML for the demo script.
 - [x] Initialize Git and commit the repository.
 - [x] Create the public repository.
 - [x] Push the main branch and verify the public URL.
+- [ ] Add dashboard and benchmark run screenshots to the README.

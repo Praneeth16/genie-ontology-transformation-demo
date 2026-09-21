@@ -13,6 +13,10 @@ from databricks.sdk.service.domains import Domain
 from databricks.sdk.service.tags import TagPolicy
 from google.protobuf.field_mask_pb2 import FieldMask
 
+# Domains and subdomains share one account wide limit. See the Databricks
+# resource limits page: "Domain | 300 | Account".
+MAX_DOMAINS_PER_ACCOUNT = 300
+
 
 def load_definition(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as handle:
@@ -72,11 +76,12 @@ def upsert_domain(
     try:
         created = client.domains.create_domain(domain)
     except InternalError:
-        if len(existing_by_key) >= 1000:
+        if len(existing_by_key) >= MAX_DOMAINS_PER_ACCOUNT:
             print(
                 "WARNING: Domain creation was skipped because this account already "
-                f"returns {len(existing_by_key)} domains and subdomains. The governed "
-                "tag exists, and the remaining demo setup can continue. Remove an unused "
+                f"returns {len(existing_by_key)} domains and subdomains, at or above "
+                f"the account limit of {MAX_DOMAINS_PER_ACCOUNT}. The governed tag "
+                "exists, and the remaining demo setup can continue. Remove an unused "
                 "domain or use another account before running this task again."
             )
             return None
@@ -134,8 +139,8 @@ def main() -> None:
                 (subdomain_spec["tag_key"], existing_root.domain_id) not in existing_by_key
                 for subdomain_spec in subdomain_specs
             )
-        if len(existing_by_key) + missing_domain_count > 1000:
-            available = max(1000 - len(existing_by_key), 0)
+        if len(existing_by_key) + missing_domain_count > MAX_DOMAINS_PER_ACCOUNT:
+            available = max(MAX_DOMAINS_PER_ACCOUNT - len(existing_by_key), 0)
             print(
                 "WARNING: Domain creation was skipped before making any changes because "
                 f"the account returns {len(existing_by_key)} domains and subdomains, but "

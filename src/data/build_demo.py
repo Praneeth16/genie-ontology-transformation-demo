@@ -33,19 +33,44 @@ def try_sql(spark: SparkSession, statement: str, label: str) -> None:
         print(f"WARNING: Could not apply {label}: {exc}")
 
 
-def metric_view_sql(name: str, source: str, comment: str, dimensions: str, measures: str) -> str:
+def metric_view_sql(
+    name: str,
+    source: str,
+    comment: str,
+    fields: str,
+    measures: str,
+    joins: str = "",
+) -> str:
+    """Render a metric view definition.
+
+    The YAML uses the `fields` keyword rather than the older `dimensions`
+    keyword, and models relationships with `joins` so the entity graph lives in
+    Unity Catalog instead of a hand-written flattening view.
+
+    Two name resolution rules are enforced by tests/check_metric_views.py:
+
+    - `window.order` names a field declared in this metric view, not the source
+      column the field is built from.
+    - A join alias must not match a field name. Resolution is case insensitive.
+
+    Two window behaviours were confirmed against a warehouse:
+
+    - `range: current` with `semiadditive: last` returns the closing period for a
+      cumulative measure. `range: all` returns a grand total for every period.
+    - `range: trailing N month` excludes the current period. Add `offset: 1 month`
+      to include it.
+    """
+    blocks = ["version: 1.1", f"source: {source}", f"comment: |-\n  {comment}"]
+    if joins:
+        blocks.append(f"joins:\n{joins.rstrip()}")
+    blocks.append(f"fields:\n{fields.rstrip()}")
+    blocks.append(f"measures:\n{measures.rstrip()}")
+    body = "\n".join(blocks)
     return f"""CREATE OR REPLACE VIEW {name}
 WITH METRICS
 LANGUAGE YAML
 AS $$
-version: 1.1
-source: {source}
-comment: |-
-  {comment}
-dimensions:
-{dimensions}
-measures:
-{measures}
+{body}
 $$"""
 
 
@@ -425,46 +450,22 @@ def main() -> None:
         f"{fq}.operating_kpi_monthly",
     )
 
+    # Each summary view below returns exactly one row for every initiative. That
+    # contract is what lets the metric views join them with the default
+    # many_to_one cardinality and still report all twelve initiatives.
     run(
         spark,
         f"""
-        CREATE OR REPLACE VIEW {fq}.v_initiative_current
-        COMMENT 'One current row per initiative with value, delivery, risk, and decision context.'
+        CREATE OR REPLACE VIEW {fq}.v_initiative_progress
+        COMMENT 'Reporting month value and progress record for each initiative. One row per initiative.'
         AS
         WITH latest AS (
           SELECT p.*
           FROM {fq}.portfolio_monthly p
           QUALIFY ROW_NUMBER() OVER (PARTITION BY initiative_id ORDER BY month_date DESC) = 1
-        ),
-        risk_summary AS (
-          SELECT initiative_id,
-                 COUNT(*) FILTER (WHERE risk_status <> 'Closed') AS open_risk_count,
-                 COUNT(*) FILTER (WHERE risk_status <> 'Closed' AND severity = 'Critical')
-                   AS open_critical_risk_count,
-                 COUNT(*) FILTER (
-                   WHERE risk_status <> 'Closed' AND severity = 'Critical' AND due_date < DATE'{as_of}'
-                 ) AS overdue_critical_risk_count
-          FROM {fq}.risks
-          GROUP BY initiative_id
-        ),
-        milestone_summary AS (
-          SELECT initiative_id,
-                 COUNT(*) AS milestone_count,
-                 COUNT(*) FILTER (WHERE milestone_status = 'Complete') AS completed_milestone_count,
-                 COUNT(*) FILTER (WHERE milestone_status = 'Overdue') AS overdue_milestone_count,
-                 MIN(planned_date) FILTER (WHERE milestone_status IN ('Due soon', 'Upcoming'))
-                   AS next_milestone_date
-          FROM {fq}.milestones
-          GROUP BY initiative_id
-        ),
-        latest_document AS (
-          SELECT initiative_id, document_title, document_text
-          FROM {fq}.portfolio_documents
-          WHERE initiative_id IS NOT NULL
-          QUALIFY ROW_NUMBER() OVER (PARTITION BY initiative_id ORDER BY document_date DESC) = 1
         )
         SELECT
-          i.*,
+          i.initiative_id,
           l.month_date AS reporting_month,
           l.planned_progress_pct,
           l.actual_progress_pct,
@@ -477,15 +478,6 @@ def main() -> None:
             AS value_gap_to_date_usd,
           GREATEST(i.target_value_usd - l.forecast_value_at_completion_usd, 0)
             AS value_at_risk_usd,
-          COALESCE(r.open_risk_count, 0) AS open_risk_count,
-          COALESCE(r.open_critical_risk_count, 0) AS open_critical_risk_count,
-          COALESCE(r.overdue_critical_risk_count, 0) AS overdue_critical_risk_count,
-          COALESCE(m.milestone_count, 0) AS milestone_count,
-          COALESCE(m.completed_milestone_count, 0) AS completed_milestone_count,
-          COALESCE(m.overdue_milestone_count, 0) AS overdue_milestone_count,
-          m.next_milestone_date,
-          d.document_title AS latest_document_title,
-          d.document_text AS latest_document_summary,
           CASE
             WHEN l.actual_progress_pct < 0.35 THEN 'Design'
             WHEN l.actual_progress_pct < 0.65 THEN 'Pilot'
@@ -493,10 +485,95 @@ def main() -> None:
             ELSE 'Benefits validation'
           END AS current_stage
         FROM {fq}.initiatives i
-        JOIN latest l USING (initiative_id)
-        LEFT JOIN risk_summary r USING (initiative_id)
-        LEFT JOIN milestone_summary m USING (initiative_id)
-        LEFT JOIN latest_document d USING (initiative_id)
+        LEFT JOIN latest l ON i.initiative_id = l.initiative_id
+        """,
+        f"{fq}.v_initiative_progress",
+    )
+
+    run(
+        spark,
+        f"""
+        CREATE OR REPLACE VIEW {fq}.v_initiative_risk_summary
+        COMMENT 'Open, critical, and overdue critical risk counts for each initiative. One row per initiative.'
+        AS
+        SELECT
+          i.initiative_id,
+          COUNT(r.risk_id) FILTER (WHERE r.risk_status <> 'Closed') AS open_risk_count,
+          COUNT(r.risk_id) FILTER (WHERE r.risk_status <> 'Closed' AND r.severity = 'Critical')
+            AS open_critical_risk_count,
+          COUNT(r.risk_id) FILTER (
+            WHERE r.risk_status <> 'Closed'
+              AND r.severity = 'Critical'
+              AND r.due_date < DATE'{as_of}'
+          ) AS overdue_critical_risk_count
+        FROM {fq}.initiatives i
+        LEFT JOIN {fq}.risks r ON i.initiative_id = r.initiative_id
+        GROUP BY i.initiative_id
+        """,
+        f"{fq}.v_initiative_risk_summary",
+    )
+
+    run(
+        spark,
+        f"""
+        CREATE OR REPLACE VIEW {fq}.v_initiative_milestone_summary
+        COMMENT 'Milestone completion and overdue counts for each initiative. One row per initiative.'
+        AS
+        SELECT
+          i.initiative_id,
+          COUNT(m.milestone_id) AS milestone_count,
+          COUNT(m.milestone_id) FILTER (WHERE m.milestone_status = 'Complete')
+            AS completed_milestone_count,
+          COUNT(m.milestone_id) FILTER (WHERE m.milestone_status = 'Overdue')
+            AS overdue_milestone_count,
+          MIN(m.planned_date) FILTER (WHERE m.milestone_status IN ('Due soon', 'Upcoming'))
+            AS next_milestone_date
+        FROM {fq}.initiatives i
+        LEFT JOIN {fq}.milestones m ON i.initiative_id = m.initiative_id
+        GROUP BY i.initiative_id
+        """,
+        f"{fq}.v_initiative_milestone_summary",
+    )
+
+    run(
+        spark,
+        f"""
+        CREATE OR REPLACE VIEW {fq}.v_initiative_latest_document
+        COMMENT 'Most recent management document for each initiative. One row per initiative.'
+        AS
+        WITH latest AS (
+          SELECT initiative_id, document_title, document_text
+          FROM {fq}.portfolio_documents
+          WHERE initiative_id IS NOT NULL
+          QUALIFY ROW_NUMBER() OVER (PARTITION BY initiative_id ORDER BY document_date DESC) = 1
+        )
+        SELECT
+          i.initiative_id,
+          l.document_title AS latest_document_title,
+          l.document_text AS latest_document_summary
+        FROM {fq}.initiatives i
+        LEFT JOIN latest l ON i.initiative_id = l.initiative_id
+        """,
+        f"{fq}.v_initiative_latest_document",
+    )
+
+    run(
+        spark,
+        f"""
+        CREATE OR REPLACE VIEW {fq}.v_initiative_current
+        COMMENT 'One current row per initiative. Row level companion to the metric views for detail questions.'
+        AS
+        SELECT
+          i.*,
+          p.* EXCEPT (initiative_id),
+          r.* EXCEPT (initiative_id),
+          m.* EXCEPT (initiative_id),
+          d.* EXCEPT (initiative_id)
+        FROM {fq}.initiatives i
+        JOIN {fq}.v_initiative_progress p ON i.initiative_id = p.initiative_id
+        JOIN {fq}.v_initiative_risk_summary r ON i.initiative_id = r.initiative_id
+        JOIN {fq}.v_initiative_milestone_summary m ON i.initiative_id = m.initiative_id
+        JOIN {fq}.v_initiative_latest_document d ON i.initiative_id = d.initiative_id
         """,
         f"{fq}.v_initiative_current",
     )
@@ -524,102 +601,142 @@ def main() -> None:
         f"{fq}.v_operating_kpi_current",
     )
 
-    value_dimensions = """  - name: Initiative ID
+    progress_join = f"""  - name: progress
+    source: {fq}.v_initiative_progress
+    using: [initiative_id]
+"""
+    delivery_joins = progress_join + f"""  - name: risk
+    source: {fq}.v_initiative_risk_summary
+    using: [initiative_id]
+  - name: milestone
+    source: {fq}.v_initiative_milestone_summary
+    using: [initiative_id]
+  - name: evidence
+    source: {fq}.v_initiative_latest_document
+    using: [initiative_id]
+"""
+
+    value_fields = """  - name: Initiative ID
     expr: initiative_id
     display_name: Initiative ID
+    comment: Stable identifier for one transformation initiative.
     synonyms: [program ID, workstream ID]
   - name: Initiative
     expr: initiative_name
     display_name: Initiative
+    comment: Business name of the transformation initiative.
     synonyms: [program, project, transformation initiative]
   - name: Strategic Theme
     expr: strategic_theme
     display_name: Strategic Theme
+    comment: Enterprise strategy grouping that the initiative reports into.
   - name: Workstream
     expr: workstream
     display_name: Workstream
+    comment: Functional delivery track that runs the initiative.
   - name: Business Unit
     expr: business_unit
     display_name: Business Unit
+    comment: Business unit accountable for the initiative result.
     synonyms: [division, BU]
   - name: Region
     expr: region
     display_name: Region
+    comment: Primary geography where the initiative delivers value.
   - name: Executive Sponsor
     expr: executive_sponsor
     display_name: Executive Sponsor
+    comment: Executive who owns the value case and unblocks decisions.
   - name: Initiative Owner
     expr: initiative_owner
     display_name: Initiative Owner
+    comment: Person accountable for delivering the initiative.
     synonyms: [owner, accountable lead]
   - name: Value Type
     expr: value_type
     display_name: Value Type
+    comment: Financial category of the benefit. Revenue, Cost, Margin, or Working capital.
   - name: Health
     expr: health
     display_name: Health
+    comment: Reported delivery health at the reporting month. Green, Amber, or Red.
     synonyms: [RAG, traffic light, status]
   - name: Current Stage
-    expr: current_stage
+    expr: progress.current_stage
     display_name: Current Stage
+    comment: Delivery stage derived from actual progress. Design, Pilot, Scale, or Benefits validation.
   - name: Reporting Month
-    expr: reporting_month
+    expr: progress.reporting_month
     display_name: Reporting Month
+    comment: Month of the value record used for current portfolio reporting.
 """
+
     value_measures = """  - name: Initiative Count
     expr: COUNT(DISTINCT initiative_id)
     display_name: Initiative Count
+    comment: Number of distinct transformation initiatives in scope.
     format: {type: number}
   - name: Target Value
     expr: SUM(target_value_usd)
     display_name: Target Value
+    comment: Finance approved full program value target. This is the commitment, not a forecast.
     synonyms: [approved value, full potential, target benefits]
     format: {type: currency, currency_code: USD}
   - name: Planned Value to Date
-    expr: SUM(planned_value_to_date_usd)
+    expr: SUM(progress.planned_value_to_date_usd)
     display_name: Planned Value to Date
+    comment: Cumulative value the plan expected by the reporting month.
     synonyms: [plan to date]
     format: {type: currency, currency_code: USD}
   - name: Realized Value to Date
-    expr: SUM(realized_value_to_date_usd)
+    expr: SUM(progress.realized_value_to_date_usd)
     display_name: Realized Value to Date
+    comment: Cumulative value that finance has validated. Never describe a forecast as realized value.
     synonyms: [banked value, validated value, actual benefits]
     format: {type: currency, currency_code: USD}
   - name: Forecast Value at Completion
-    expr: SUM(forecast_value_at_completion_usd)
+    expr: SUM(progress.forecast_value_at_completion_usd)
     display_name: Forecast Value at Completion
+    comment: Value the initiative is currently expected to deliver by its planned end date.
     synonyms: [forecast value, expected benefits]
     format: {type: currency, currency_code: USD}
   - name: Value Gap to Date
-    expr: SUM(value_gap_to_date_usd)
+    expr: SUM(progress.value_gap_to_date_usd)
     display_name: Value Gap to Date
+    comment: Positive shortfall of realized value against planned value at the reporting month.
     synonyms: [plan gap, value shortfall]
     format: {type: currency, currency_code: USD}
   - name: Value at Risk
-    expr: SUM(value_at_risk_usd)
+    expr: SUM(progress.value_at_risk_usd)
     display_name: Value at Risk
+    comment: Positive gap between approved target and forecast value at completion, summed by initiative. A forecast shortfall, not a loss already taken.
     synonyms: [forecast shortfall, target value at risk]
     format: {type: currency, currency_code: USD}
   - name: Approved Investment
     expr: SUM(approved_investment_usd)
     display_name: Approved Investment
+    comment: Investment approved to deliver the initiative.
     format: {type: currency, currency_code: USD}
   - name: Investment to Date
-    expr: SUM(investment_to_date_usd)
+    expr: SUM(progress.investment_to_date_usd)
     display_name: Investment to Date
+    comment: Investment consumed by the reporting month.
     format: {type: currency, currency_code: USD}
   - name: Net Forecast Benefit
     expr: MEASURE(`Forecast Value at Completion`) - MEASURE(`Approved Investment`)
     display_name: Net Forecast Benefit
+    comment: Forecast value at completion less approved investment.
     format: {type: currency, currency_code: USD}
   - name: Forecast ROI
     expr: MEASURE(`Net Forecast Benefit`) / NULLIF(MEASURE(`Approved Investment`), 0)
     display_name: Forecast ROI
+    comment: Net forecast benefit divided by approved investment. Based on forecast value, not realized value.
     synonyms: [return on investment]
     format: {type: percentage}
   - name: Forecast Attainment
     expr: MEASURE(`Forecast Value at Completion`) / NULLIF(MEASURE(`Target Value`), 0)
     display_name: Forecast Attainment
+    comment: Forecast value at completion divided by approved target value.
     synonyms: [forecast versus target, forecast achievement]
     format: {type: percentage}
 """
@@ -627,101 +744,234 @@ def main() -> None:
         spark,
         metric_view_sql(
             f"{fq}.mv_value_realization",
-            f"{fq}.v_initiative_current",
+            f"{fq}.initiatives",
             "Governed value realization measures for the Northstar transformation portfolio. "
-            "Finance validates Realized Value to Date. Value at Risk is the positive gap "
-            "between approved target and forecast value at completion.",
-            value_dimensions,
+            "Initiatives is the entity. The reporting month value record joins through "
+            "initiative_id. Finance validates Realized Value to Date. Value at Risk is the "
+            "positive gap between approved target and forecast value at completion.",
+            value_fields,
             value_measures,
+            joins=progress_join,
         ),
         f"{fq}.mv_value_realization",
     )
 
+    delivery_fields = value_fields + """  - name: Latest Evidence
+    expr: evidence.latest_document_title
+    display_name: Latest Evidence
+    comment: Title of the most recent management document for the initiative.
+    synonyms: [steering evidence, latest document]
+  - name: Next Milestone Date
+    expr: milestone.next_milestone_date
+    display_name: Next Milestone Date
+    comment: Planned date of the next milestone that is due soon or upcoming.
+"""
+
     delivery_measures = """  - name: Initiative Count
     expr: COUNT(DISTINCT initiative_id)
     display_name: Initiative Count
+    comment: Number of distinct transformation initiatives in scope.
     format: {type: number}
   - name: Red Initiatives
     expr: COUNT(DISTINCT initiative_id) FILTER (WHERE health = 'Red')
     display_name: Red Initiatives
+    comment: Initiatives reported as Red at the reporting month.
     format: {type: number}
   - name: Amber Initiatives
     expr: COUNT(DISTINCT initiative_id) FILTER (WHERE health = 'Amber')
     display_name: Amber Initiatives
+    comment: Initiatives reported as Amber at the reporting month.
     format: {type: number}
   - name: Average Progress
-    expr: AVG(actual_progress_pct)
+    expr: AVG(progress.actual_progress_pct)
     display_name: Average Progress
+    comment: Mean actual delivery progress across the initiatives in scope.
     format: {type: percentage}
   - name: Maximum Days Slipped
     expr: MAX(days_slipped)
     display_name: Maximum Days Slipped
+    comment: Largest schedule slip in days across the initiatives in scope.
     format: {type: number}
   - name: Open Risks
-    expr: SUM(open_risk_count)
+    expr: SUM(risk.open_risk_count)
     display_name: Open Risks
+    comment: Risks that are Open or Mitigating. Closed risks are excluded.
     format: {type: number}
   - name: Open Critical Risks
-    expr: SUM(open_critical_risk_count)
+    expr: SUM(risk.open_critical_risk_count)
     display_name: Open Critical Risks
+    comment: Open risks with Critical severity.
     format: {type: number}
   - name: Overdue Critical Risks
-    expr: SUM(overdue_critical_risk_count)
+    expr: SUM(risk.overdue_critical_risk_count)
     display_name: Overdue Critical Risks
+    comment: Open critical risks whose due date has passed at the reporting date. The strongest intervention signal in this demo.
     format: {type: number}
   - name: Overdue Milestones
-    expr: SUM(overdue_milestone_count)
+    expr: SUM(milestone.overdue_milestone_count)
     display_name: Overdue Milestones
+    comment: Milestones that are not complete and whose planned date has passed.
     format: {type: number}
   - name: Milestone Completion
-    expr: SUM(completed_milestone_count) / NULLIF(SUM(milestone_count), 0)
+    expr: SUM(milestone.completed_milestone_count) / NULLIF(SUM(milestone.milestone_count), 0)
     display_name: Milestone Completion
+    comment: Completed milestones divided by total milestones.
     format: {type: percentage}
 """
     run(
         spark,
         metric_view_sql(
             f"{fq}.mv_delivery_health",
-            f"{fq}.v_initiative_current",
+            f"{fq}.initiatives",
             "Current initiative delivery health, milestones, risks, ownership, and schedule. "
-            "Use the latest document summary for the reported reason behind an initiative status.",
-            value_dimensions,
+            "Initiatives is the entity. Risk, milestone, and evidence summaries join through "
+            "initiative_id. Use Latest Evidence for the reported reason behind a status.",
+            delivery_fields,
             delivery_measures,
+            joins=delivery_joins,
         ),
         f"{fq}.mv_delivery_health",
     )
 
-    operating_dimensions = """  - name: Month
+    # The join alias must not collide with a field name. Resolution is case
+    # insensitive, so an alias of "initiative" would be read as the "Initiative"
+    # field and the engine would try to extract a struct member from a string.
+    trend_joins = f"""  - name: initiative_dim
+    source: {fq}.initiatives
+    using: [initiative_id]
+"""
+
+    trend_fields = """  - name: Month
     expr: month_date
     display_name: Month
+    comment: Reporting month of the cumulative value record.
+  - name: Initiative ID
+    expr: initiative_id
+    display_name: Initiative ID
+    comment: Stable identifier for one transformation initiative.
+  - name: Initiative
+    expr: initiative_dim.initiative_name
+    display_name: Initiative
+    comment: Business name of the transformation initiative.
+    synonyms: [program, project]
+  - name: Strategic Theme
+    expr: initiative_dim.strategic_theme
+    display_name: Strategic Theme
+    comment: Enterprise strategy grouping that the initiative reports into.
+  - name: Business Unit
+    expr: initiative_dim.business_unit
+    display_name: Business Unit
+    comment: Business unit accountable for the initiative result.
+    synonyms: [division, BU]
+  - name: Region
+    expr: initiative_dim.region
+    display_name: Region
+    comment: Primary geography where the initiative delivers value.
+  - name: Value Type
+    expr: initiative_dim.value_type
+    display_name: Value Type
+    comment: Financial category of the benefit.
+"""
+
+    trend_measures = """  - name: Planned Value at Period End
+    expr: SUM(planned_value_to_date_usd)
+    display_name: Planned Value at Period End
+    comment: Cumulative planned value at the last month of the selected period. Cumulative records are not added across months.
+    format: {type: currency, currency_code: USD}
+    window:
+      - order: Month
+        range: current
+        semiadditive: last
+  - name: Realized Value at Period End
+    expr: SUM(realized_value_to_date_usd)
+    display_name: Realized Value at Period End
+    comment: Cumulative finance validated value at the last month of the selected period.
+    synonyms: [realized value at quarter end, closing realized value]
+    format: {type: currency, currency_code: USD}
+    window:
+      - order: Month
+        range: current
+        semiadditive: last
+  - name: Investment at Period End
+    expr: SUM(investment_to_date_usd)
+    display_name: Investment at Period End
+    comment: Cumulative investment consumed at the last month of the selected period.
+    format: {type: currency, currency_code: USD}
+    window:
+      - order: Month
+        range: current
+        semiadditive: last
+"""
+    run(
+        spark,
+        metric_view_sql(
+            f"{fq}.mv_value_trend",
+            f"{fq}.portfolio_monthly",
+            "Monthly value trend for the Northstar transformation portfolio. The stored "
+            "records are cumulative to date, so the period end measures use a semiadditive "
+            "window that takes the last month of the selected period instead of adding "
+            "months together. Use this metric view for month over month and quarter end "
+            "questions.",
+            trend_fields,
+            trend_measures,
+            joins=trend_joins,
+        ),
+        f"{fq}.mv_value_trend",
+    )
+
+    operating_fields = """  - name: Month
+    expr: month_date
+    display_name: Month
+    comment: Reporting month of the operating KPI result.
   - name: Business Unit
     expr: business_unit
     display_name: Business Unit
+    comment: Business unit that reports the KPI.
     synonyms: [division, BU]
   - name: KPI
     expr: kpi_name
     display_name: KPI
+    comment: Operating measure name. Never combine different KPIs into one aggregate.
     synonyms: [metric, operating measure]
   - name: Unit
     expr: unit
     display_name: Unit
+    comment: Unit of the KPI value. Percent, Points, Days, or USD per order.
   - name: Direction
     expr: direction
     display_name: Direction
+    comment: Whether a higher or lower value is better. HIGHER_BETTER or LOWER_BETTER.
 """
+
     operating_measures = """  - name: Actual
     expr: AVG(actual_value)
     display_name: Actual
+    comment: Reported KPI result. Only meaningful within one KPI because units differ.
   - name: Target
     expr: AVG(target_value)
     display_name: Target
+    comment: Approved KPI target for the transformation.
   - name: Favorable Gap
     expr: AVG(CASE direction WHEN 'HIGHER_BETTER' THEN actual_value - target_value ELSE target_value - actual_value END)
     display_name: Favorable Gap
+    comment: Distance from target signed so that a positive value is always better than target.
+    synonyms: [gap to target]
   - name: Attainment
     expr: AVG(CASE direction WHEN 'HIGHER_BETTER' THEN actual_value / NULLIF(target_value, 0) ELSE target_value / NULLIF(actual_value, 0) END)
     display_name: Attainment
+    comment: Share of target achieved, direction aware so that one is always on target.
+    synonyms: [target attainment]
     format: {type: percentage}
+  - name: Actual Three Month Average
+    expr: AVG(actual_value)
+    display_name: Actual Three Month Average
+    comment: Average KPI result over the reporting month and the two months before it. Use it to separate a trend from a single month of noise.
+    synonyms: [three month average, smoothed actual]
+    window:
+      - order: Month
+        range: trailing 3 month
+        offset: 1 month
+        semiadditive: last
 """
     run(
         spark,
@@ -731,7 +981,7 @@ def main() -> None:
             "Monthly operating KPIs by business unit. Never combine different KPIs into "
             "one aggregate because their units differ. Compare Actual and Target only "
             "within one KPI.",
-            operating_dimensions,
+            operating_fields,
             operating_measures,
         ),
         f"{fq}.mv_operating_performance",
@@ -782,6 +1032,8 @@ def main() -> None:
             f"{table} foreign key",
         )
 
+    # SET TAG needs the correct securable type. A view tagged as TABLE fails, so
+    # the metric views and the helper views must use VIEW.
     certified_assets = [
         ("TABLE", "initiatives"),
         ("TABLE", "portfolio_monthly"),
@@ -789,9 +1041,12 @@ def main() -> None:
         ("TABLE", "milestones"),
         ("TABLE", "portfolio_documents"),
         ("TABLE", "operating_kpi_monthly"),
-        ("TABLE", "mv_value_realization"),
-        ("TABLE", "mv_delivery_health"),
-        ("TABLE", "mv_operating_performance"),
+        ("VIEW", "v_initiative_current"),
+        ("VIEW", "v_operating_kpi_current"),
+        ("VIEW", "mv_value_realization"),
+        ("VIEW", "mv_delivery_health"),
+        ("VIEW", "mv_value_trend"),
+        ("VIEW", "mv_operating_performance"),
     ]
     for object_type, name in certified_assets:
         try_sql(
@@ -809,23 +1064,33 @@ def main() -> None:
             ("TABLE", "milestones"),
             ("TABLE", "portfolio_documents"),
             ("TABLE", "operating_kpi_monthly"),
+            ("VIEW", "v_initiative_progress"),
+            ("VIEW", "v_initiative_risk_summary"),
+            ("VIEW", "v_initiative_milestone_summary"),
+            ("VIEW", "v_initiative_latest_document"),
             ("VIEW", "v_initiative_current"),
             ("VIEW", "v_operating_kpi_current"),
             ("VIEW", "mv_value_realization"),
             ("VIEW", "mv_delivery_health"),
+            ("VIEW", "mv_value_trend"),
             ("VIEW", "mv_operating_performance"),
         ],
         "Enterprise Transformation/Value Realization": [
             ("TABLE", "initiatives"),
             ("TABLE", "portfolio_monthly"),
+            ("VIEW", "v_initiative_progress"),
             ("VIEW", "v_initiative_current"),
             ("VIEW", "mv_value_realization"),
+            ("VIEW", "mv_value_trend"),
         ],
         "Enterprise Transformation/Delivery and Risk": [
             ("TABLE", "initiatives"),
             ("TABLE", "risks"),
             ("TABLE", "milestones"),
             ("TABLE", "portfolio_documents"),
+            ("VIEW", "v_initiative_risk_summary"),
+            ("VIEW", "v_initiative_milestone_summary"),
+            ("VIEW", "v_initiative_latest_document"),
             ("VIEW", "v_initiative_current"),
             ("VIEW", "mv_delivery_health"),
         ],

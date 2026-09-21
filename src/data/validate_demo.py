@@ -54,12 +54,20 @@ def main() -> None:
     spark = SparkSession.builder.getOrCreate()
     fq = f"{catalog}.{schema}"
 
+    # The four summary views must return exactly one row per initiative. The
+    # metric view joins use the default many_to_one cardinality, so a summary
+    # view that dropped or duplicated an initiative would silently change every
+    # governed measure.
     expected_counts = {
         "initiatives": 12,
         "risks": 15,
         "milestones": 48,
         "portfolio_documents": 8,
         "operating_kpi_monthly": 480,
+        "v_initiative_progress": 12,
+        "v_initiative_risk_summary": 12,
+        "v_initiative_milestone_summary": 12,
+        "v_initiative_latest_document": 12,
         "v_initiative_current": 12,
     }
     for object_name, expected in expected_counts.items():
@@ -118,6 +126,41 @@ def main() -> None:
     expect_equal("open critical risks", delivery_row.open_critical_risks, 4)
     expect_equal("overdue critical risks", delivery_row.overdue_critical_risks, 4)
 
+    trend_row = spark.sql(
+        f"""
+        SELECT
+          MEASURE(`Realized Value at Period End`) AS realized_at_period_end,
+          MEASURE(`Investment at Period End`) AS investment_at_period_end
+        FROM {fq}.mv_value_trend
+        """
+    ).first()
+    if trend_row is None:
+        raise AssertionError("Value trend metric view returned no rows")
+    closing_month = spark.sql(
+        f"""
+        SELECT
+          ROUND(SUM(realized_value_to_date_usd), 2) AS realized,
+          ROUND(SUM(investment_to_date_usd), 2) AS investment
+        FROM {fq}.portfolio_monthly
+        WHERE month_date = DATE'{as_of_date.replace(day=1)}'
+        """
+    ).first()
+    if closing_month is None:
+        raise AssertionError("Closing month query returned no rows")
+    # Each semiadditive window must take the closing month, not the sum of every
+    # month, because the stored records are already cumulative to date. Check
+    # every windowed measure, not just one of them.
+    expect_equal(
+        "semiadditive realized value at period end",
+        round(float(trend_row.realized_at_period_end), 2),
+        round(float(closing_month.realized), 2),
+    )
+    expect_equal(
+        "semiadditive investment at period end",
+        round(float(trend_row.investment_at_period_end), 2),
+        round(float(closing_month.investment), 2),
+    )
+
     kpi_rows = spark.sql(
         f"""
         SELECT `Business Unit`, MEASURE(`Actual`) AS actual, MEASURE(`Target`) AS target
@@ -169,10 +212,33 @@ def main() -> None:
         3,
     )
 
+    certified_assets = scalar(
+        spark,
+        f"""
+        SELECT COUNT(*)
+        FROM {catalog}.information_schema.table_tags
+        WHERE catalog_name = '{catalog}'
+          AND schema_name = '{schema}'
+          AND tag_name = 'system.certification_status'
+          AND tag_value = 'certified'
+        """,
+    )
+    if certified_assets == 0:
+        # Consistent with the domain tag check below. An identity that cannot
+        # apply tags at all should not stop the agents and dashboard from
+        # deploying. Partial application is still a failure.
+        print(
+            "WARNING: no asset carries the certification tag. This identity may not "
+            "have APPLY TAG on the schema. The demo still works, but the presenter "
+            "should not claim that the assets are certified."
+        )
+    else:
+        expect_equal("certified assets", certified_assets, 12)
+
     expected_domain_tags = {
-        "Enterprise Transformation": 11,
-        "Enterprise Transformation/Value Realization": 4,
-        "Enterprise Transformation/Delivery and Risk": 6,
+        "Enterprise Transformation": 16,
+        "Enterprise Transformation/Value Realization": 6,
+        "Enterprise Transformation/Delivery and Risk": 9,
         "Enterprise Transformation/Operating Performance": 3,
     }
     domain_tag_rows = spark.sql(
@@ -185,7 +251,18 @@ def main() -> None:
         """
     ).collect()
     actual_domain_tags = {row.tag_name: row.tagged_assets for row in domain_tag_rows}
-    expect_equal("domain tag membership", actual_domain_tags, expected_domain_tags)
+    if not actual_domain_tags:
+        # The governed tag policies could not be created, so no asset carries a
+        # domain tag. The demo still works without domains, and the setup job
+        # must continue to the Genie Agents. Partial tagging is still a failure.
+        print(
+            "WARNING: no domain tags are present on the demo assets. The account "
+            "could not create the governed tag policies, or this identity cannot "
+            "assign them. Genie Agents and the dashboard still work. See "
+            "docs/DEPLOYMENT.md to finish the domain setup."
+        )
+    else:
+        expect_equal("domain tag membership", actual_domain_tags, expected_domain_tags)
 
     print("All data and semantic layer checks passed.")
 

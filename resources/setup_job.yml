@@ -66,6 +66,7 @@ resources:
             parameters:
               - --dashboard-id=${resources.dashboards.transformation_value_office.id}
               - --manifest=${workspace.file_path}/src/genie/manifest.json
+              - --parent-path=${var.agent_parent_path}
 
       queue:
         enabled: true

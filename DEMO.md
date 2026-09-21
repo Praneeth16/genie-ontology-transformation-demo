@@ -2,7 +2,7 @@
 
 ## Audience
 
-The main audience is a Bain team that wants to show enterprise leaders how governed data and business context can support a transformation value office. The customer audience can include transformation leaders and executive sponsors. It can also include business unit and data leaders.
+The main audience is enterprise Data and AI leaders, transformation leaders, and executive sponsors. Business unit leaders and data teams can also use the demo.
 
 ## Business setting
 
@@ -39,7 +39,7 @@ The demo then opens the cited business definition, shows its domain and owner, a
 
 Use a direct executive style. Start with the decision and numbers. Show definitions only when they help the audience trust or challenge the answer. Keep the Northstar name visible so no one mistakes synthetic data for a customer result.
 
-Use the Databricks product interface as the main visual. Do not add Bain marks or imply Bain endorsement in the public repository.
+Use the Databricks product interface as the main visual. Do not add third party marks or imply customer endorsement in the public repository.
 
 ## Architecture
 

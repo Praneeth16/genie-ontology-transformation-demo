@@ -1,112 +1,103 @@
-# Question bank
+# Genie Ontology question bank
 
-Use these questions during the demo and during customer discovery. Start with the six question sequence below. Use the larger bank when a customer wants to test a specific decision.
+Use these questions during the demo and during customer discovery. Start with the six question sequence. Use the larger bank when the audience wants to test a specific decision.
 
-The surface column shows where to ask each question. Use Genie One when a question needs more than one decision area. Use a focused Genie Agent when the question stays within value, delivery, or operating performance.
+The Surface column shows where to ask each question. Use Genie One when the question crosses value, delivery, operating results, and management evidence. Use a focused Genie Agent when the question stays within one decision area.
 
-All expected results refer to the synthetic Northstar data as of 31 August 2026.
+All expected results refer to synthetic Northstar data as at 31 August 2026.
 
-## Six question demo sequence
+## Six question executive sequence
 
-| Step | Question | Surface | What it proves |
-|---|---|---|---|
-| 1 | How is the Northstar transformation portfolio performing against the approved value case, and where should leadership intervene this month? | Genie One | One question can bring together governed value measures, delivery status, and management evidence. |
-| 2 | Which strategic themes drive the gap to plan and the value at risk? | Value Realization Agent | Leaders can move from the portfolio result to the themes behind it without changing the measure definition. |
-| 3 | Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | A user can check a value signal against risks, milestones, and documents. |
-| 4 | Which owners have overdue critical risks or milestones, and what action is due next? | Delivery Risk Agent | The answer connects an issue to an accountable person and a recorded mitigation. |
-| 5 | Which operating KPIs are below target in the business units with red initiatives? | Genie One | A user can compare portfolio execution with operating results without claiming causation. |
-| 6 | What sources and definitions did you use? | Genie One | The user can inspect citations, owners, business definitions, and the governed calculation. |
+| Step | Question | Surface | What the audience should see |
+|---:|---|---|---|
+| 1 | How is the transformation portfolio performing against the approved value case? | Value Realization Agent | Approved target, plan to date, realized value, forecast value, value at risk, forecast attainment, and return. |
+| 2 | Which initiatives have the largest forecast shortfall, and who owns them? | Value Realization Agent | A ranked list with owner, business unit, health, target, forecast, and value at risk. |
+| 3 | Where does the executive committee need to intervene this month? | Delivery Risk Agent | Four red initiatives ranked by overdue critical risks, delay, and value at risk. |
+| 4 | Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make? | Delivery Risk Agent | The owner, overdue action, recorded mitigation, steering evidence, and decision request. |
+| 5 | What does Value at Risk mean, how is it calculated, and where is it used? | Catalog Explorer and Genie One | The definition, synonyms, expression, owner, tags, certification, source, and related assets. |
+| 6 | Which benchmark questions passed in the latest run? | Benchmark run | 13 of 13 questions passed across the three agents with no review items. |
 
-## Enterprise portfolio and value
+## Portfolio and value realization
 
-| Question | Surface | Expected answer |
+| Question | Surface | Expected result |
 |---|---|---|
 | How is the portfolio performing against target value, plan to date, realized value, and forecast value? | Value Realization Agent | Show all four values, value at risk, the gap to plan, and forecast attainment. Keep realized value separate from forecast value. |
-| Which strategic themes drive the gap to plan and the value at risk? | Value Realization Agent | Rank strategic themes by value gap to date and value at risk. |
-| Which business units and regions have the largest forecast shortfall? | Value Realization Agent | Rank the governed value at risk measure by business unit and by region. |
-| What changed in planned value, realized value, and investment since the previous monthly review? | Value Realization Agent | Compare July 2026 with August 2026 by using the monthly value records. |
+| Which strategic themes drive the gap to plan and the value at risk? | Value Realization Agent | Rank themes by value gap to date and value at risk. |
+| Which business units and regions have the largest forecast shortfall? | Value Realization Agent | Rank the governed value at risk measure by business unit and region. |
+| What changed in planned value, realized value, and investment since the previous monthly review? | Value Realization Agent | Compare July 2026 with August 2026 by using the monthly records. |
 | How much investment and realized value did the portfolio report at each quarter end? | Value Realization Agent | Show cumulative investment and realized value at the last available month of each quarter. |
 | Which initiatives have the largest protectable value? | Value Realization Agent | Rank initiatives with positive value at risk. Include the owner, health, target, forecast, and value at risk. |
 | Which value types contribute most to the current forecast shortfall? | Value Realization Agent | Group value at risk by revenue, cost, working capital, and margin. |
-| Is the forecast return still above the approved investment case? | Value Realization Agent | Show approved investment, forecast value, net forecast benefit, and forecast return. State that this is a forecast, not realized return. |
-| Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | Match the largest value gaps with open risks and the latest relevant document. Do not treat the document as proof that value was lost. |
-| What changed in the portfolio since the previous monthly review, and which decisions should leaders make now? | Genie One | Summarize the monthly value change, current red work, overdue items, and recorded decision needs. |
+| Is the forecast return still above the approved investment case? | Value Realization Agent | Show approved investment, forecast value, net forecast benefit, and forecast return. State that this is a forecast. |
 
-## Strategic theme and initiative diagnosis
+## Initiative diagnosis and executive action
 
-| Question | Surface | Expected answer |
+| Question | Surface | Expected result |
 |---|---|---|
 | Which initiatives explain the miss for each underperforming strategic theme? | Value Realization Agent | Break each theme gap into initiatives and include the accountable owner. |
-| Is the value signal consistent with delivery health, risks, milestones, and steering evidence? | Genie One | Compare the governed value result with current delivery records and cite the supporting sources. Call out any disagreement. |
-| Why is Network footprint redesign red, and what decision is needed next? | Delivery Risk Agent | Use the current status, delay, overdue items, and Network steering memo. |
-| Which initiatives are falling further behind plan as value continues to mature? | Value Realization Agent | Compare the cumulative plan gap over recent months. Do not describe a cumulative value series as declining. |
-| Which red initiatives have no overdue critical risk or overdue milestone? | Delivery Risk Agent | Identify status records that need a closer evidence review because the common delivery signals do not explain the red status. |
-| Which risks or milestones could put the most forecast value at risk? | Genie One | Join delivery issues to initiative value at risk. Present this as a prioritization view, not a causal claim. |
-| Are the operating KPI results consistent with the initiatives in each business unit? | Genie One | Compare current initiative health with KPI attainment for the same business unit. Keep the answer descriptive. |
-| Which operating KPIs show a seasonal pattern, and does the pattern repeat across business units? | Operating Performance Agent | Use the monthly series for one KPI at a time and compare the same months across business units. |
-| Which business units lag most on both delivery and operating performance? | Genie One | Compare red work, overdue items, and current KPI attainment by business unit. |
-| What is the recommended executive action for each red initiative? | Genie One | Use recorded mitigations and decision requests. Label any additional recommendation as analysis, not source evidence. |
+| Is the value signal consistent with delivery health, risks, milestones, and steering evidence? | Genie One | Compare the governed value result with current delivery records. Cite the supporting sources and call out any disagreement. |
+| Why is Network footprint redesign red, and what decision is needed next? | Delivery Risk Agent | Use the current status, schedule delay, overdue items, and Network steering memo. |
+| Which red initiatives have no overdue critical risk or overdue milestone? | Delivery Risk Agent | Identify status records that need closer evidence review because the common delivery signals do not explain the red status. |
+| Which risks or milestones could put the most forecast value at risk? | Genie One | Join delivery issues to initiative value at risk. Present the result as a priority list, not a causal claim. |
+| What is the recommended executive action for each red initiative? | Genie One | Use recorded mitigations and decision requests. Label any additional recommendation as analysis. |
+| Were the largest value gaps already recorded as delivery risks or in steering evidence? | Genie One | Match the largest gaps with open risks and the latest relevant document. Do not treat the document as proof that value was lost. |
 
-## Business unit, owner, and execution
+## Owner and delivery execution
 
-| Question | Surface | Expected answer |
+| Question | Surface | Expected result |
 |---|---|---|
 | How does delivery execution compare across business units? | Delivery Risk Agent | Show red and amber initiatives, progress, overdue critical risks, overdue milestones, and milestone completion. |
 | Which regions have the most value at risk and the most delayed initiatives? | Genie One | Compare value at risk with schedule delay by region. |
 | Which executive sponsors own the largest forecast shortfall? | Value Realization Agent | Rank sponsors by value at risk and include the initiatives behind each result. |
 | Which initiative owners have overdue critical risks, and what mitigation did they record? | Delivery Risk Agent | List the risk owner, initiative owner, due date, mitigation, and evidence source. |
 | How are owners executing against the milestone plan? | Delivery Risk Agent | Compare completed, overdue, due soon, and upcoming milestones by owner. |
-| Which business unit has the widest KPI target gaps in August 2026? | Operating Performance Agent | Compare favorable gap and attainment within each KPI. Never add values from different units. |
-| Which business units have improved forecast accuracy since January 2025, and which remain below target? | Operating Performance Agent | Show the monthly trend and the August 2026 target result for each business unit. |
-| Which business unit has the lowest on time delivery attainment? | Operating Performance Agent | Return one business unit from the latest monthly result with actual, target, and attainment. |
 | Which initiatives should leaders target first to protect the most value? | Genie One | Rank positive value at risk, then add health, overdue risks, overdue milestones, owner, and the latest evidence. |
-| What should each owner do before the next executive review? | Genie One | Use due dates, mitigation actions, milestone status, and document decisions. Keep source facts separate from generated recommendations. |
+| What should each owner do before the next executive review? | Genie One | Use due dates, recorded mitigation, milestone status, and decision requests. Keep facts separate from generated recommendations. |
 
-## Focused agent questions
+## Operating outcomes
 
-### Northstar Value Realization Agent
+| Question | Surface | Expected result |
+|---|---|---|
+| Which operating KPIs are below target in August 2026? | Operating Performance Agent | Show business unit, KPI, actual, target, favorable gap, and attainment. |
+| Which business unit has the widest KPI target gaps? | Operating Performance Agent | Compare favorable gap and attainment within each KPI. Do not add values with different units. |
+| Which business units have improved forecast accuracy since January 2025? | Operating Performance Agent | Show the monthly trend and the August 2026 target result for each business unit. |
+| Which business unit has the lowest on time delivery attainment? | Operating Performance Agent | Return one business unit from the latest result with actual, target, and attainment. |
+| Which KPIs show a seasonal pattern, and does the pattern repeat across business units? | Operating Performance Agent | Use the monthly series for one KPI at a time and compare the same months across business units. |
+| Are operating results consistent with the initiatives in each business unit? | Genie One | Compare current initiative health with KPI attainment for the same business unit. Keep the answer descriptive. |
+| Which business units lag most on both delivery and operating performance? | Genie One | Compare red work, overdue items, and current KPI attainment by business unit. |
 
-| Question | Expected result |
-|---|---|
-| How is the transformation portfolio performing against the approved value case? | Target, plan, realized value, forecast, value at risk, and forecast attainment. |
-| Which business units have the most value at risk? | Four business units ranked by value at risk with attainment. |
-| Which initiatives have the largest forecast shortfall? | A ranked initiative list with owner and health. |
-| What is the forecast return on approved investment? | Approved investment, forecast value, net forecast benefit, and forecast return. |
-| Compare realized value with plan by strategic theme. | Planned value, realized value, and the gap for each theme. |
-| What value is at risk in Europe? | The European portfolio result using the governed measure. |
+## Ontology and governance
 
-### Northstar Delivery Risk Agent
+| Question | Surface | Expected result |
+|---|---|---|
+| What does Value at Risk mean in this portfolio? | Catalog Explorer or Genie One | State that it is the positive gap between the approved target and forecast value at completion. |
+| What synonyms can a user use for Value at Risk? | Catalog Explorer | Show forecast shortfall and target value at risk. |
+| Which asset defines the Value at Risk calculation? | Catalog Explorer | Show the certified `mv_value_realization` metric view and the measure expression. |
+| Who owns the value measure, and which business area governs it? | Catalog Explorer | Show the owner and the Enterprise Transformation and Value Realization tags. |
+| Which dashboards and agents use the value measure? | Catalog Explorer | Show the related dashboard, setup job, and Value Realization Agent. |
+| What sources and definitions supported this answer? | Genie Agent | Expand Sources, inspect the generated SQL, and open the cited measure. |
+| What happens if a user cannot access one of the sources? | Presenter discussion | Explain that retrieval respects the user permission. The answer can only use sources the user can access. |
+| How do modeled definitions and inferred context work together? | Presenter discussion | Explain that owners define critical terms and measures. Databricks can infer additional context from approved assets and their use. Governed definitions remain authoritative. |
 
-| Question | Expected result |
-|---|---|
-| Where does the executive committee need to intervene this month? | Four red initiatives ranked by critical risks, delay, and value at risk. |
-| Which initiatives are red and why? | The red list with the latest evidence summary. |
-| Which critical risks are overdue and who owns them? | Four critical risks with due date, owner, mitigation, and source. |
-| Which milestones are overdue? | Overdue milestones only, with planned date and owner. |
-| What evidence explains the network footprint status? | The Network steering memo and its recorded issue. |
-| Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make? | The accountable owner, overdue action, recorded mitigation, and decision request. |
-| Show delivery health by business unit. | Initiative and risk measures grouped by business unit. |
+## Quality and repeatability
 
-### Northstar Operating Performance Agent
+| Question | Surface | Expected result |
+|---|---|---|
+| How do we know the agent returns the expected result? | Benchmark run | Show the committed question, approved SQL answer, and latest result. |
+| What happens when a benchmark fails? | Presenter discussion | An editor reviews the failure, fixes the definition, metadata, or approved SQL, and runs the benchmark again. |
+| Can another team deploy the same demo? | Repository | Explain that the Databricks Asset Bundle creates the data, metric views, dashboard, agents, and regression job. |
+| Which parts require customer review? | Presenter discussion | Business owners approve definitions, sources, permissions, agent scope, and acceptance questions. |
+| What is the first useful workshop output? | Presenter discussion | A short list of leadership questions, approved measures, source owners, and test questions for one decision area. |
 
-| Question | Expected result |
-|---|---|
-| Which operating KPIs are below target in August 2026? | Latest unfavorable KPI rows based on the direction aware gap. |
-| Show EBITDA margin against target by business unit. | Actual, target, and favorable gap for four business units. |
-| How has forecast accuracy changed since January 2025? | Monthly values by business unit for the full period. |
-| Which business unit has the lowest on time delivery attainment? | One business unit from the latest current view. |
-| Compare working capital days with target. | Actual days, target days, favorable gap, and attainment. |
-| Show the cost to serve trend by business unit. | Monthly cost to serve values that keep each unit separate. |
+## Questions for customer discovery
 
-## Discovery questions for a customer workshop
+Use these questions after the demo:
 
-- Which measures cannot be wrong in an executive review?
-- Who approves each definition and calculation?
-- Which system owns each source record?
-- Which documents explain a status or variance?
-- Which questions do leaders ask every week or month?
-- Which wrong answer would create the most risk?
-- Which users should see each source?
-- What SQL result would count as the approved answer for each test question?
-
-Turn the answers into Pages, metric measures, agent source boundaries, permissions, verified SQL, and benchmark questions. Start with one decision area. Add another area after the first benchmark set passes.
+1. Which recurring leadership decision takes the most time to reconcile today?
+2. Which measures cause the most disagreement across teams?
+3. Who owns the business meaning of those measures?
+4. Which structured sources and management documents support the decision?
+5. Which user groups should see each source?
+6. What answer would the business accept as correct?
+7. Which wrong answer would create the most risk?
+8. Which questions should become regression tests before launch?

@@ -5,4 +5,4 @@ resources:
       name: ${var.schema}
       comment: >-
         Synthetic enterprise transformation value office data for the Genie
-        Ontology demo. It contains no Bain data and no customer data.
+        Ontology demo. It contains no customer data.

@@ -2,7 +2,7 @@
 
 This repository builds a customer demo of Genie Ontology for an enterprise transformation value office. It gives a consulting team one synthetic portfolio with governed measures, business definitions, delivery evidence, three focused Genie Agents, an executive dashboard, and benchmark tests.
 
-Northstar Group is fictional. The repository contains no Bain data, customer data, or internal Databricks content.
+Northstar Group is fictional. The repository contains no customer data or internal Databricks content.
 
 ## What the demo proves
 
@@ -69,7 +69,7 @@ The public Databricks documentation marked Genie Ontology and Domains as Public 
 
 The demo uses three focused agents instead of one large agent. Each agent has a clear decision boundary and a small source set. This makes wrong answers easier to trace and benchmark.
 
-The setup uses a fixed reporting date of 31 August 2026. A fixed date keeps screenshots, expected values, and benchmark results stable across deployments.
+The setup uses a fixed reporting date of 31 August 2026. A fixed date keeps query results and benchmark results stable across deployments.
 
 The committed JSON is the source of truth for the three Genie Agents. A deployment replaces the configuration of a live agent with the same title. Export and merge any workspace edits that you want to keep before you deploy.
 

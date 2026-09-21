@@ -5,7 +5,7 @@
 - [x] Review the current public Genie Ontology documentation.
 - [x] Review public guidance for Unity Catalog semantics, metric views, Domains, Pages, certification, and benchmarks.
 - [x] Review internal demo guidance and keep internal links out of the public repository.
-- [x] Inspect the reference screenshots and capture the citation experience in the script.
+- [x] Inspect the reference demo and capture the citation experience in the script.
 
 ## Build
 

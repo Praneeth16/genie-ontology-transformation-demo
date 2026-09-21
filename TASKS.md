@@ -29,6 +29,7 @@
 - [x] Create the four governed tag policies required by the domain design.
 - [ ] Create the live domain and subdomains in an account with four available domain slots.
 - [x] Run the benchmark job and record the result.
+- [x] Deploy from a clean public clone into a second workspace and pass all 13 benchmarks.
 - [ ] Import and publish the Pages.
 
 ## Publication

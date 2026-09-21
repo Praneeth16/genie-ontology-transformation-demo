@@ -25,6 +25,10 @@
       {
         "id": "12000000000000000000000000000005",
         "question": ["Show delivery health by business unit."]
+      },
+      {
+        "id": "12000000000000000000000000000006",
+        "question": ["Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make?"]
       }
     ]
   },
@@ -106,6 +110,12 @@
         "question": ["What evidence explains the network footprint status?"],
         "sql": ["SELECT document_title, document_type, document_date, document_text, document_owner FROM ${catalog}.${schema}.portfolio_documents WHERE initiative_id = 'TVO-003' ORDER BY document_date DESC"],
         "usage_guidance": ["Quote the synthetic steering evidence and identify the document."]
+      },
+      {
+        "id": "22000000000000000000000000000005",
+        "question": ["Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make?"],
+        "sql": ["SELECT i.initiative_id, i.initiative_name, i.initiative_owner, r.risk_title, r.due_date, r.risk_owner, r.mitigation_action, d.document_title, d.document_text FROM ${catalog}.${schema}.v_initiative_current AS i LEFT JOIN ${catalog}.${schema}.risks AS r ON i.initiative_id = r.initiative_id AND r.risk_status <> 'Closed' LEFT JOIN ${catalog}.${schema}.portfolio_documents AS d ON i.initiative_id = d.initiative_id WHERE i.initiative_id = 'TVO-003' ORDER BY r.due_date, d.document_date DESC"],
+        "usage_guidance": ["Separate the recorded owner, due action, mitigation, and committee decision from any generated recommendation."]
       }
     ]
   },
@@ -154,6 +164,17 @@
           }
         ],
         "evaluation_note": ["Use the governed Red Initiatives measure and return only business units with red work."]
+      },
+      {
+        "id": "42000000000000000000000000000004",
+        "question": ["Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make?"],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": ["SELECT i.initiative_id, i.initiative_name, i.initiative_owner, r.risk_title, r.due_date, r.risk_owner, r.mitigation_action, d.document_title, d.document_text FROM ${catalog}.${schema}.v_initiative_current AS i LEFT JOIN ${catalog}.${schema}.risks AS r ON i.initiative_id = r.initiative_id AND r.risk_status <> 'Closed' LEFT JOIN ${catalog}.${schema}.portfolio_documents AS d ON i.initiative_id = d.initiative_id WHERE i.initiative_name = 'Network footprint redesign' ORDER BY r.due_date ASC, d.document_date DESC"]
+          }
+        ],
+        "evaluation_note": ["The answer must identify Sofia Marin, both open Network risks and mitigations, and the September investment decision from the Network steering memo."]
       }
     ]
   }

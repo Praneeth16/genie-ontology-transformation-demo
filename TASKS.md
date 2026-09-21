@@ -27,7 +27,7 @@
 - [x] Confirm the dashboard datasets and visualizations through the workspace API.
 - [x] Confirm all three agents and their committed context in the workspace.
 - [x] Create the four governed tag policies required by the domain design.
-- [ ] Create the live domain and subdomains. The Praneeth account returns 997 domains and subdomains, but the complete demo needs four open slots and only three remain. The setup creates none of the domain records until all four slots are available.
+- [ ] Create the live domain and subdomains. The Praneeth account returns 1,000 domains and subdomains, so no slots remain. The setup creates none of the domain records until all four required slots are available.
 - [x] Run the benchmark job and record the result.
 - [ ] Import and publish the Pages.
 
@@ -50,8 +50,8 @@
 | Operating Performance Agent | `01f1b579e51519ca962b328a317c0464` |
 | Setup job | `243470960409207` |
 | Regression job | `296598498581033` |
-| Final setup run | `336462085665555`, passed |
-| Final benchmark run | `947921635915108`, 12 of 12 passed, 0 need review |
+| Final setup run | `379612352068540`, passed |
+| Final benchmark run | `223972267812165`, 13 of 13 passed, 0 need review |
 | Governed tags | Enterprise Transformation and its three subdomain tags |
 | Catalog domain assignments | 24 assignments across 11 assets |
 | Workspace domain assignments | Dashboard root tag and root plus subdomain tags on all three agents |

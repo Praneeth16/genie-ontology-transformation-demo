@@ -72,9 +72,13 @@ def ensure_table_tag(
         print(f"Domain tag already exists on {object_name}: {tag_key}")
         return
 
-    spark.sql(
-        f"SET TAG ON {object_type} {catalog}.{schema}.{object_name} `{tag_key}`"
-    )
+    try:
+        spark.sql(
+            f"SET TAG ON {object_type} {catalog}.{schema}.{object_name} `{tag_key}`"
+        )
+    except Exception as exc:  # noqa: BLE001  # Tag policies can be missing in restricted accounts.
+        print(f"WARNING: Could not apply domain tag on {object_name}: {tag_key}: {exc}")
+        return
     print(f"Applied domain tag on {object_name}: {tag_key}")
 
 

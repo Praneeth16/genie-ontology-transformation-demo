@@ -49,13 +49,20 @@ def ensure_tags(
         if tag_key in existing:
             print(f"Governed tag already present: {entity_type} {entity_id} {tag_key}")
             continue
-        client.workspace_entity_tag_assignments.create_tag_assignment(
-            TagAssignment(
-                entity_type=entity_type,
-                entity_id=entity_id,
-                tag_key=tag_key,
+        try:
+            client.workspace_entity_tag_assignments.create_tag_assignment(
+                TagAssignment(
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    tag_key=tag_key,
+                )
             )
-        )
+        except Exception as exc:  # noqa: BLE001  # Tag policies can be missing in restricted accounts.
+            print(
+                f"WARNING: Could not apply governed tag {tag_key} to "
+                f"{entity_type} {entity_id}: {exc}"
+            )
+            continue
         print(f"Applied governed tag: {entity_type} {entity_id} {tag_key}")
 
 

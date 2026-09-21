@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.errors import InternalError, PermissionDenied
+from databricks.sdk.errors import BadRequest, InternalError, PermissionDenied
 from databricks.sdk.service.domains import Domain
 from databricks.sdk.service.tags import TagPolicy
 from google.protobuf.field_mask_pb2 import FieldMask
@@ -29,9 +29,18 @@ def ensure_tag_policy(
         print(f"Governed tag already exists: {tag_key}")
         return
 
-    created = client.tag_policies.create_tag_policy(
-        TagPolicy(tag_key=tag_key, description=description)
-    )
+    try:
+        created = client.tag_policies.create_tag_policy(
+            TagPolicy(tag_key=tag_key, description=description)
+        )
+    except (BadRequest, PermissionDenied) as exc:
+        print(
+            f"WARNING: Could not create governed tag {tag_key}: {exc}. The "
+            "account may have reached its tag policy limit, or this identity "
+            "may not have permission to create tag policies. The remaining "
+            "demo setup can continue without the tag."
+        )
+        return
     existing_by_key[tag_key] = created
     print(f"Created governed tag: {tag_key} ({created.id})")
 

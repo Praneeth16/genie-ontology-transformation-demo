@@ -15,7 +15,7 @@ All expected results refer to synthetic Northstar data as at 31 August 2026.
 | 3 | Where does the executive committee need to intervene this month? | Delivery Risk Agent | Four red initiatives ranked by overdue critical risks, delay, and value at risk. |
 | 4 | Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make? | Delivery Risk Agent | The owner, overdue action, recorded mitigation, steering evidence, and decision request. |
 | 5 | What does Value at Risk mean, how is it calculated, and where is it used? | Catalog Explorer and Genie One | The definition, synonyms, expression, owner, tags, certification, source, and related assets. |
-| 6 | Which benchmark questions passed in the latest run? | Benchmark run | 13 of 13 questions passed across the three agents with no review items. |
+| 6 | Which benchmark questions passed in the latest run? | Benchmark run | 14 of 14 questions passed across the three agents with no review items. |
 
 ## Portfolio and value realization
 
@@ -24,8 +24,9 @@ All expected results refer to synthetic Northstar data as at 31 August 2026.
 | How is the portfolio performing against target value, plan to date, realized value, and forecast value? | Value Realization Agent | Show all four values, value at risk, the gap to plan, and forecast attainment. Keep realized value separate from forecast value. |
 | Which strategic themes drive the gap to plan and the value at risk? | Value Realization Agent | Rank themes by value gap to date and value at risk. |
 | Which business units and regions have the largest forecast shortfall? | Value Realization Agent | Rank the governed value at risk measure by business unit and region. |
-| What changed in planned value, realized value, and investment since the previous monthly review? | Value Realization Agent | Compare July 2026 with August 2026 by using the monthly records. |
-| How much investment and realized value did the portfolio report at each quarter end? | Value Realization Agent | Show cumulative investment and realized value at the last available month of each quarter. |
+| What changed in planned value, realized value, and investment since the previous monthly review? | Value Realization Agent | Compare July 2026 with August 2026 using the period end measures in `mv_value_trend`. The two months must not be added together. |
+| How much investment and realized value did the portfolio report at each quarter end? | Value Realization Agent | One closing row per quarter from the semiadditive period end measures. Values must never exceed the 645 million dollar approved target. |
+| Is realized value still trending up month by month? | Value Realization Agent | Group the period end measures in `mv_value_trend` by month and read the closing value of each month. |
 | Which initiatives have the largest protectable value? | Value Realization Agent | Rank initiatives with positive value at risk. Include the owner, health, target, forecast, and value at risk. |
 | Which value types contribute most to the current forecast shortfall? | Value Realization Agent | Group value at risk by revenue, cost, working capital, and margin. |
 | Is the forecast return still above the approved investment case? | Value Realization Agent | Show approved investment, forecast value, net forecast benefit, and forecast return. State that this is a forecast. |
@@ -61,6 +62,7 @@ All expected results refer to synthetic Northstar data as at 31 August 2026.
 | Which operating KPIs are below target in August 2026? | Operating Performance Agent | Show business unit, KPI, actual, target, favorable gap, and attainment. |
 | Which business unit has the widest KPI target gaps? | Operating Performance Agent | Compare favorable gap and attainment within each KPI. Do not add values with different units. |
 | Which business units have improved forecast accuracy since January 2025? | Operating Performance Agent | Show the monthly trend and the August 2026 target result for each business unit. |
+| Is the on time delivery improvement a real trend or one good month? | Operating Performance Agent | Compare the monthly Actual with Actual Three Month Average, which covers the reporting month and the two before it. |
 | Which business unit has the lowest on time delivery attainment? | Operating Performance Agent | Return one business unit from the latest result with actual, target, and attainment. |
 | Which KPIs show a seasonal pattern, and does the pattern repeat across business units? | Operating Performance Agent | Use the monthly series for one KPI at a time and compare the same months across business units. |
 | Are operating results consistent with the initiatives in each business unit? | Genie One | Compare current initiative health with KPI attainment for the same business unit. Keep the answer descriptive. |
@@ -72,6 +74,9 @@ All expected results refer to synthetic Northstar data as at 31 August 2026.
 |---|---|---|
 | What does Value at Risk mean in this portfolio? | Catalog Explorer or Genie One | State that it is the positive gap between the approved target and forecast value at completion. |
 | What synonyms can a user use for Value at Risk? | Catalog Explorer | Show forecast shortfall and target value at risk. |
+| What does the measure description say about Value at Risk? | Catalog Explorer | Read the measure comment. It states that this is a forecast shortfall, not a loss already taken. |
+| What is the initiative joined to in the value metric view? | Catalog Explorer | Open the `joins` block. The reporting month record, risk summary, milestone summary, and latest document each join on `initiative_id`. |
+| Why can the agent not add twelve months of realized value together? | Catalog Explorer or Genie One | The period end measures use a semiadditive window, so a period returns its closing month. The rule lives with the measure. |
 | Which asset defines the Value at Risk calculation? | Catalog Explorer | Show the certified `mv_value_realization` metric view and the measure expression. |
 | Who owns the value measure, and which business area governs it? | Catalog Explorer | Show the owner and the Enterprise Transformation and Value Realization tags. |
 | Which dashboards and agents use the value measure? | Catalog Explorer | Show the related dashboard, setup job, and Value Realization Agent. |
@@ -84,6 +89,8 @@ All expected results refer to synthetic Northstar data as at 31 August 2026.
 | Question | Surface | Expected result |
 |---|---|---|
 | How do we know the agent returns the expected result? | Benchmark run | Show the committed question, approved SQL answer, and latest result. |
+| Which test would catch a broken time rule? | Benchmark run | The quarter end benchmark. If the semiadditive window ever starts summing months, the values climb past the approved target and the run fails. |
+| Can a bad metric view reach a workspace? | Repository | `make check` renders and validates every metric view definition locally before a deployment. |
 | What happens when a benchmark fails? | Presenter discussion | An editor reviews the failure, fixes the definition, metadata, or approved SQL, and runs the benchmark again. |
 | Can another team deploy the same demo? | Repository | Explain that the Databricks Asset Bundle creates the data, metric views, dashboard, agents, and regression job. |
 | Which parts require customer review? | Presenter discussion | Business owners approve definitions, sources, permissions, agent scope, and acceptance questions. |

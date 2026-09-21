@@ -20,6 +20,7 @@ resources:
             python_file: ../src/genie/run_benchmarks.py
             parameters:
               - --manifest=${workspace.file_path}/src/genie/manifest.json
+              - --parent-path=${var.agent_parent_path}
               - --timeout-seconds=1800
 
       queue:

@@ -4,35 +4,57 @@
     "sample_questions": [
       {
         "id": "11000000000000000000000000000000",
-        "question": ["How is the transformation portfolio performing against the approved value case?"]
+        "question": [
+          "How is the transformation portfolio performing against the approved value case?"
+        ]
       },
       {
         "id": "11000000000000000000000000000001",
-        "question": ["Which business units have the most value at risk?"]
+        "question": [
+          "Which business units have the most value at risk?"
+        ]
       },
       {
         "id": "11000000000000000000000000000002",
-        "question": ["Which initiatives have the largest forecast shortfall?"]
+        "question": [
+          "Which initiatives have the largest forecast shortfall?"
+        ]
       },
       {
         "id": "11000000000000000000000000000003",
-        "question": ["What is the forecast return on approved investment?"]
+        "question": [
+          "What is the forecast return on approved investment?"
+        ]
       },
       {
         "id": "11000000000000000000000000000004",
-        "question": ["Compare realized value with plan by strategic theme."]
+        "question": [
+          "Compare realized value with plan by strategic theme."
+        ]
       },
       {
         "id": "11000000000000000000000000000005",
-        "question": ["What value is at risk in Europe?"]
+        "question": [
+          "What value is at risk in Europe?"
+        ]
       },
       {
         "id": "11000000000000000000000000000006",
-        "question": ["Which strategic themes drive the gap to plan and the value at risk?"]
+        "question": [
+          "Which strategic themes drive the gap to plan and the value at risk?"
+        ]
       },
       {
         "id": "11000000000000000000000000000007",
-        "question": ["What changed in planned value, realized value, and investment since the previous monthly review?"]
+        "question": [
+          "What changed in planned value, realized value, and investment since the previous monthly review?"
+        ]
+      },
+      {
+        "id": "11000000000000000000000000000008",
+        "question": [
+          "How did realized value and investment move at each quarter end?"
+        ]
       }
     ]
   },
@@ -43,25 +65,39 @@
         "column_configs": [
           {
             "column_name": "Initiative",
-            "synonyms": ["program", "project", "transformation initiative"],
+            "synonyms": [
+              "program",
+              "project",
+              "transformation initiative"
+            ],
             "enable_format_assistance": true,
             "enable_entity_matching": true
           },
           {
             "column_name": "Business Unit",
-            "synonyms": ["division", "BU"],
+            "synonyms": [
+              "division",
+              "BU"
+            ],
             "enable_format_assistance": true,
             "enable_entity_matching": true
           },
           {
             "column_name": "Initiative Owner",
-            "synonyms": ["owner", "accountable lead"],
+            "synonyms": [
+              "owner",
+              "accountable lead"
+            ],
             "enable_format_assistance": true,
             "enable_entity_matching": true
           },
           {
             "column_name": "Health",
-            "synonyms": ["RAG", "traffic light", "status"],
+            "synonyms": [
+              "RAG",
+              "traffic light",
+              "status"
+            ],
             "enable_format_assistance": true,
             "enable_entity_matching": true
           }
@@ -71,7 +107,7 @@
         "identifier": "${catalog}.${schema}.v_initiative_current"
       },
       {
-        "identifier": "${catalog}.${schema}.portfolio_monthly"
+        "identifier": "${catalog}.${schema}.mv_value_trend"
       }
     ]
   },
@@ -80,58 +116,106 @@
       {
         "id": "31000000000000000000000000000000",
         "content": [
-          "This agent covers value realization for Northstar Group, a fictional enterprise. All data is synthetic. Use mv_value_realization for current portfolio measures and grouped analysis. Use portfolio_monthly only for month over month or quarter end analysis. The monthly values are cumulative. Use the last available month in each period. Realized Value to Date means value that finance has validated. Planned Value to Date means the value expected by the reporting month. Value at Risk means the positive gap between the approved target and the forecast value at completion. Forecast Attainment is forecast value divided by target value. Use v_initiative_current only when a question needs row level initiative details that the metric view does not expose. Amounts are in US dollars. The reporting date is 31 August 2026. Do not claim that a forecast is realized value. State the definition you used when a question says value without saying target, plan, realized, or forecast. Rank plural questions as a list, normally the top ten. Include the business unit and accountable owner when you name an initiative."
+          "This agent covers value realization for Northstar Group, a fictional enterprise. All data is synthetic. Use mv_value_realization for current portfolio measures and grouped analysis. Use mv_value_trend for anything over time, such as month over month and quarter end. The stored monthly records are cumulative to date, so mv_value_trend exposes period end measures that take the closing month of the period. Never add cumulative months together. Realized Value to Date means value that finance has validated. Planned Value to Date means the value expected by the reporting month. Value at Risk means the positive gap between the approved target and the forecast value at completion. Forecast Attainment is forecast value divided by target value. Use v_initiative_current only when a question needs row level initiative details that the metric views do not expose. Amounts are in US dollars. The reporting date is 31 August 2026. Do not claim that a forecast is realized value. State the definition you used when a question says value without saying target, plan, realized, or forecast. Rank plural questions as a list, normally the top ten. Include the business unit and accountable owner when you name an initiative."
         ]
       }
     ],
     "example_question_sqls": [
       {
         "id": "21000000000000000000000000000000",
-        "question": ["How is the transformation portfolio performing against the approved value case?"],
-        "sql": ["SELECT MEASURE(`Target Value`) AS target_value_usd, MEASURE(`Planned Value to Date`) AS planned_value_to_date_usd, MEASURE(`Realized Value to Date`) AS realized_value_to_date_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd, MEASURE(`Forecast Attainment`) AS forecast_attainment FROM ${catalog}.${schema}.mv_value_realization"],
-        "usage_guidance": ["Use this for the executive value summary. Keep target, plan, realized value, and forecast value separate."]
+        "question": [
+          "How is the transformation portfolio performing against the approved value case?"
+        ],
+        "sql": [
+          "SELECT MEASURE(`Target Value`) AS target_value_usd, MEASURE(`Planned Value to Date`) AS planned_value_to_date_usd, MEASURE(`Realized Value to Date`) AS realized_value_to_date_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd, MEASURE(`Forecast Attainment`) AS forecast_attainment FROM ${catalog}.${schema}.mv_value_realization"
+        ],
+        "usage_guidance": [
+          "Use this for the executive value summary. Keep target, plan, realized value, and forecast value separate."
+        ]
       },
       {
         "id": "21000000000000000000000000000001",
-        "question": ["Which business units have the most value at risk?"],
-        "sql": ["SELECT `Business Unit`, MEASURE(`Target Value`) AS target_value_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd, MEASURE(`Forecast Attainment`) AS forecast_attainment FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Business Unit` ORDER BY value_at_risk_usd DESC"],
-        "usage_guidance": ["Rank by the absolute value at risk and show attainment beside it."]
+        "question": [
+          "Which business units have the most value at risk?"
+        ],
+        "sql": [
+          "SELECT `Business Unit`, MEASURE(`Target Value`) AS target_value_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd, MEASURE(`Forecast Attainment`) AS forecast_attainment FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Business Unit` ORDER BY value_at_risk_usd DESC"
+        ],
+        "usage_guidance": [
+          "Rank by the absolute value at risk and show attainment beside it."
+        ]
       },
       {
         "id": "21000000000000000000000000000002",
-        "question": ["Which initiatives have the largest forecast shortfall?"],
-        "sql": ["SELECT `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner`, `Health`, MEASURE(`Target Value`) AS target_value_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner`, `Health` HAVING MEASURE(`Value at Risk`) > 0 ORDER BY value_at_risk_usd DESC LIMIT 10"],
-        "usage_guidance": ["Return a ranked list with the owner and health for action."]
+        "question": [
+          "Which initiatives have the largest forecast shortfall?"
+        ],
+        "sql": [
+          "SELECT `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner`, `Health`, MEASURE(`Target Value`) AS target_value_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner`, `Health` HAVING MEASURE(`Value at Risk`) > 0 ORDER BY value_at_risk_usd DESC LIMIT 10"
+        ],
+        "usage_guidance": [
+          "Return a ranked list with the owner and health for action."
+        ]
       },
       {
         "id": "21000000000000000000000000000003",
-        "question": ["What is the forecast return on approved investment?"],
-        "sql": ["SELECT MEASURE(`Approved Investment`) AS approved_investment_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Net Forecast Benefit`) AS net_forecast_benefit_usd, MEASURE(`Forecast ROI`) AS forecast_roi FROM ${catalog}.${schema}.mv_value_realization"],
-        "usage_guidance": ["Forecast ROI is based on forecast value, not realized value."]
+        "question": [
+          "What is the forecast return on approved investment?"
+        ],
+        "sql": [
+          "SELECT MEASURE(`Approved Investment`) AS approved_investment_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Net Forecast Benefit`) AS net_forecast_benefit_usd, MEASURE(`Forecast ROI`) AS forecast_roi FROM ${catalog}.${schema}.mv_value_realization"
+        ],
+        "usage_guidance": [
+          "Forecast ROI is based on forecast value, not realized value."
+        ]
       },
       {
         "id": "21000000000000000000000000000004",
-        "question": ["Compare realized value with plan by strategic theme."],
-        "sql": ["SELECT `Strategic Theme`, MEASURE(`Planned Value to Date`) AS planned_value_to_date_usd, MEASURE(`Realized Value to Date`) AS realized_value_to_date_usd, MEASURE(`Value Gap to Date`) AS value_gap_to_date_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Strategic Theme` ORDER BY value_gap_to_date_usd DESC"],
-        "usage_guidance": ["Use the cumulative plan and finance validated realized value at the reporting date."]
+        "question": [
+          "Compare realized value with plan by strategic theme."
+        ],
+        "sql": [
+          "SELECT `Strategic Theme`, MEASURE(`Planned Value to Date`) AS planned_value_to_date_usd, MEASURE(`Realized Value to Date`) AS realized_value_to_date_usd, MEASURE(`Value Gap to Date`) AS value_gap_to_date_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Strategic Theme` ORDER BY value_gap_to_date_usd DESC"
+        ],
+        "usage_guidance": [
+          "Use the cumulative plan and finance validated realized value at the reporting date."
+        ]
       },
       {
         "id": "21000000000000000000000000000005",
-        "question": ["Which strategic themes drive the gap to plan and the value at risk?"],
-        "sql": ["SELECT `Strategic Theme`, MEASURE(`Planned Value to Date`) AS planned_value_to_date_usd, MEASURE(`Realized Value to Date`) AS realized_value_to_date_usd, MEASURE(`Value Gap to Date`) AS value_gap_to_date_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Strategic Theme` ORDER BY value_at_risk_usd DESC, value_gap_to_date_usd DESC"],
-        "usage_guidance": ["Keep the gap to plan separate from value at risk because one compares actual value with the current plan and the other compares the forecast with the approved target."]
+        "question": [
+          "Which strategic themes drive the gap to plan and the value at risk?"
+        ],
+        "sql": [
+          "SELECT `Strategic Theme`, MEASURE(`Planned Value to Date`) AS planned_value_to_date_usd, MEASURE(`Realized Value to Date`) AS realized_value_to_date_usd, MEASURE(`Value Gap to Date`) AS value_gap_to_date_usd, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Strategic Theme` ORDER BY value_at_risk_usd DESC, value_gap_to_date_usd DESC"
+        ],
+        "usage_guidance": [
+          "Keep the gap to plan separate from value at risk because one compares actual value with the current plan and the other compares the forecast with the approved target."
+        ]
       },
       {
         "id": "21000000000000000000000000000006",
-        "question": ["What changed in planned value, realized value, and investment since the previous monthly review?"],
-        "sql": ["SELECT month_date, ROUND(SUM(planned_value_to_date_usd), 2) AS planned_value_to_date_usd, ROUND(SUM(realized_value_to_date_usd), 2) AS realized_value_to_date_usd, ROUND(SUM(planned_value_to_date_usd - realized_value_to_date_usd), 2) AS value_gap_to_date_usd, ROUND(SUM(investment_to_date_usd), 2) AS investment_to_date_usd FROM ${catalog}.${schema}.portfolio_monthly WHERE month_date IN (DATE'2026-07-01', DATE'2026-08-01') GROUP BY month_date ORDER BY month_date"],
-        "usage_guidance": ["Compare the two cumulative month end results. Do not add the July and August values together."]
+        "question": [
+          "What changed in planned value, realized value, and investment since the previous monthly review?"
+        ],
+        "sql": [
+          "SELECT `Month`, MEASURE(`Planned Value at Period End`) AS planned_value_to_date_usd, MEASURE(`Realized Value at Period End`) AS realized_value_to_date_usd, MEASURE(`Investment at Period End`) AS investment_to_date_usd FROM ${catalog}.${schema}.mv_value_trend WHERE `Month` IN (DATE'2026-07-01', DATE'2026-08-01') GROUP BY `Month` ORDER BY `Month`"
+        ],
+        "usage_guidance": [
+          "Use the governed period end measures. They are semiadditive, so each month reports its own cumulative position. Do not add the July and August values together."
+        ]
       },
       {
         "id": "21000000000000000000000000000007",
-        "question": ["How much investment and realized value did the portfolio report at each quarter end?"],
-        "sql": ["WITH monthly AS (SELECT month_date, ROUND(SUM(planned_value_to_date_usd), 2) AS planned_value_to_date_usd, ROUND(SUM(realized_value_to_date_usd), 2) AS realized_value_to_date_usd, ROUND(SUM(investment_to_date_usd), 2) AS investment_to_date_usd FROM ${catalog}.${schema}.portfolio_monthly GROUP BY month_date), ranked AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY DATE_TRUNC('QUARTER', month_date) ORDER BY month_date DESC) AS period_rank FROM monthly) SELECT CAST(DATE_TRUNC('QUARTER', month_date) AS DATE) AS quarter_start, month_date AS quarter_end_observation, planned_value_to_date_usd, realized_value_to_date_usd, investment_to_date_usd FROM ranked WHERE period_rank = 1 ORDER BY quarter_start"],
-        "usage_guidance": ["Use the last available month in each quarter because the values are cumulative. The final 2026 quarter in this data ends with the August reporting month."]
+        "question": [
+          "How much investment and realized value did the portfolio report at each quarter end?"
+        ],
+        "sql": [
+          "SELECT DATE_TRUNC('QUARTER', `Month`) AS quarter_start, MEASURE(`Planned Value at Period End`) AS planned_value_to_date_usd, MEASURE(`Realized Value at Period End`) AS realized_value_to_date_usd, MEASURE(`Investment at Period End`) AS investment_to_date_usd FROM ${catalog}.${schema}.mv_value_trend GROUP BY DATE_TRUNC('QUARTER', `Month`) ORDER BY quarter_start"
+        ],
+        "usage_guidance": [
+          "The period end measures pick the last month in each quarter, so no window function is needed. The final 2026 quarter in this data ends with the August reporting month."
+        ]
       }
     ]
   },
@@ -139,47 +223,88 @@
     "questions": [
       {
         "id": "41000000000000000000000000000000",
-        "question": ["What is the total approved value target?"],
+        "question": [
+          "What is the total approved value target?"
+        ],
         "answer": [
           {
             "format": "SQL",
-            "content": ["SELECT MEASURE(`Target Value`) AS target_value_usd FROM ${catalog}.${schema}.mv_value_realization"]
+            "content": [
+              "SELECT MEASURE(`Target Value`) AS target_value_usd FROM ${catalog}.${schema}.mv_value_realization"
+            ]
           }
         ],
-        "evaluation_note": ["The answer must return one value of 645 million US dollars."]
+        "evaluation_note": [
+          "The answer must return one value of 645 million US dollars."
+        ]
       },
       {
         "id": "41000000000000000000000000000001",
-        "question": ["Show forecast value and value at risk by business unit."],
+        "question": [
+          "Show forecast value and value at risk by business unit."
+        ],
         "answer": [
           {
             "format": "SQL",
-            "content": ["SELECT `Business Unit`, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Business Unit` ORDER BY value_at_risk_usd DESC"]
+            "content": [
+              "SELECT `Business Unit`, MEASURE(`Forecast Value at Completion`) AS forecast_value_usd, MEASURE(`Value at Risk`) AS value_at_risk_usd FROM ${catalog}.${schema}.mv_value_realization GROUP BY `Business Unit` ORDER BY value_at_risk_usd DESC"
+            ]
           }
         ],
-        "evaluation_note": ["The result must contain all four business units and use the governed measures."]
+        "evaluation_note": [
+          "The result must contain all four business units and use the governed measures."
+        ]
       },
       {
         "id": "41000000000000000000000000000002",
-        "question": ["Which transformation initiatives have red health?"],
+        "question": [
+          "Which transformation initiatives have red health?"
+        ],
         "answer": [
           {
             "format": "SQL",
-            "content": ["SELECT `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner` FROM ${catalog}.${schema}.mv_value_realization WHERE `Health` = 'Red' GROUP BY `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner` ORDER BY `Initiative ID`"]
+            "content": [
+              "SELECT `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner` FROM ${catalog}.${schema}.mv_value_realization WHERE `Health` = 'Red' GROUP BY `Initiative ID`, `Initiative`, `Business Unit`, `Initiative Owner` ORDER BY `Initiative ID`"
+            ]
           }
         ],
-        "evaluation_note": ["The result must list TVO-003, TVO-004, TVO-005, and TVO-012."]
+        "evaluation_note": [
+          "The result must list TVO-003, TVO-004, TVO-005, and TVO-012."
+        ]
       },
       {
         "id": "41000000000000000000000000000003",
-        "question": ["What is the forecast portfolio ROI?"],
+        "question": [
+          "What is the forecast portfolio ROI?"
+        ],
         "answer": [
           {
             "format": "SQL",
-            "content": ["SELECT MEASURE(`Forecast ROI`) AS forecast_roi FROM ${catalog}.${schema}.mv_value_realization"]
+            "content": [
+              "SELECT MEASURE(`Forecast ROI`) AS forecast_roi FROM ${catalog}.${schema}.mv_value_realization"
+            ]
           }
         ],
-        "evaluation_note": ["Use the governed Forecast ROI measure and return one value."]
+        "evaluation_note": [
+          "Use the governed Forecast ROI measure and return one value."
+        ]
+      },
+      {
+        "id": "41000000000000000000000000000004",
+        "question": [
+          "What realized value and investment did the portfolio report at each quarter end?"
+        ],
+        "answer": [
+          {
+            "format": "SQL",
+            "content": [
+              "SELECT DATE_TRUNC('QUARTER', `Month`) AS quarter_start, MEASURE(`Realized Value at Period End`) AS realized_value_to_date_usd, MEASURE(`Investment at Period End`) AS investment_to_date_usd FROM ${catalog}.${schema}.mv_value_trend GROUP BY DATE_TRUNC('QUARTER', `Month`) ORDER BY quarter_start"
+            ]
+          }
+        ],
+        "evaluation_note": [
+          "The result must return one closing row per quarter from the governed period end measures. Values that keep rising far above the approved 645 million dollar target mean the cumulative months were added together instead of taking the closing month."
+        ]
       }
     ]
   }

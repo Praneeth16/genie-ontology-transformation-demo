@@ -25,7 +25,9 @@ The demo then opens the cited business definition, shows its domain and owner, a
 | Component | Purpose |
 |---|---|
 | Synthetic Delta tables | Provide deterministic portfolio, risk, milestone, document, and KPI data. |
-| Metric views | Define value, delivery, and operating measures. |
+| Metric views | Define value, delivery, and operating measures once, with the entity relationships declared as `joins`. |
+| Summary views | Provide one row per initiative so the metric views can join them safely. |
+| Semiadditive measures | Stop cumulative monthly records being added together, for every tool that reads the measure. |
 | Unity Catalog metadata | Records descriptions, column meaning, keys, and certification signals. |
 | Domain and subdomains | Organize assets by business purpose. |
 | Pages | Define transformation terms and their authoritative sources. |
@@ -33,7 +35,7 @@ The demo then opens the cited business definition, shows its domain and owner, a
 | Delivery Risk Agent | Answers intervention, risk, milestone, and evidence questions. |
 | Operating Performance Agent | Answers KPI and target questions. |
 | AI/BI dashboard | Gives executives a stable starting point. |
-| Benchmarks | Compare agent answers with committed SQL results. |
+| Benchmarks | Compare agent answers with committed SQL results, including one test that guards the cumulative value rule. |
 
 ## Brand and presentation
 
@@ -43,13 +45,14 @@ Use the Databricks product interface as the main visual. Do not add third party 
 
 ## Architecture
 
-The bundle creates the data and governed metric layer in Unity Catalog. The dashboard and Genie Agents query that layer. Pages add approved business definitions. Genie Ontology combines this modeled context with context inferred from the dashboard, queries, and agents. Genie One retrieves the sources that the user is allowed to see and shows citations in the answer.
+The bundle creates the data and governed metric layer in Unity Catalog. The metric views declare the entity relationships, so the ontology carries the join model rather than each query rewriting it. The dashboard and Genie Agents query that layer. Pages add approved business definitions. Genie Ontology combines this modeled context with context inferred from the dashboard, queries, and agents. Genie One retrieves the sources that the user is allowed to see and shows citations in the answer.
 
 ## Success criteria
 
 - The bundle can be deployed from a clean clone with one `make deploy` command.
 - The setup job passes every data and semantic check.
 - All three agents include sample questions, verified SQL, and benchmark questions.
+- `make check` validates every metric view definition before a deployment reaches a workspace.
 - The dashboard opens without dataset errors.
 - A customer can inspect a cited Page and see its domain, owner, synonyms, definition, and related assets.
 - The benchmark job reports a result for every committed benchmark question.

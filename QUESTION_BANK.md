@@ -84,6 +84,7 @@ All expected results refer to the synthetic Northstar data as of 31 August 2026.
 | Which critical risks are overdue and who owns them? | Four critical risks with due date, owner, mitigation, and source. |
 | Which milestones are overdue? | Overdue milestones only, with planned date and owner. |
 | What evidence explains the network footprint status? | The Network steering memo and its recorded issue. |
+| Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make? | The accountable owner, overdue action, recorded mitigation, and decision request. |
 | Show delivery health by business unit. | Initiative and risk measures grouped by business unit. |
 
 ### Northstar Operating Performance Agent

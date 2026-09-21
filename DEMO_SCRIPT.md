@@ -10,6 +10,19 @@ This script is for a 20 minute customer conversation. Use the sections marked Co
 - Reset each agent to a new conversation.
 - Keep the fixed reporting date of 31 August 2026 visible.
 
+## Storyline at a glance
+
+Before the first click, tell the audience how the story will move:
+
+1. Detect the portfolio signal that needs attention.
+2. Explain the value and delivery drivers behind it.
+3. Show who owns the recorded action and which decision is due.
+4. Prove that the answer uses approved definitions and has passed its tests.
+
+Say:
+
+> We will follow one management question from signal to action. We will see where value is at risk and why the work is off track. We will then see who owns the next action and whether the answer uses approved definitions.
+
 ## 1. Set the business problem. Core. Two minutes.
 
 Open the Enterprise Transformation Value Office dashboard.
@@ -18,11 +31,13 @@ Say:
 
 > Northstar Group is a fictional enterprise with twelve transformation initiatives. Its leadership team has approved 645 million dollars of value. The team needs one clear view of value, delivery risk, and operating outcomes. All data in this demo is synthetic.
 
-> The team needs charts and answers that use the same definitions. In this demo, people have defined target value, realized value, delivery health, and KPI attainment in Unity Catalog. The dashboard, Genie Agents, and Genie One can use that shared context.
+> Northstar's finance team and transformation office should not spend the executive review reconciling different numbers and status reports. Business unit leaders need answers that use the same definitions and source records.
+
+> The goal is a review where leaders can move from a portfolio signal to its driver and source evidence. They can then see the owner and next decision. People have defined the value and delivery measures in Unity Catalog. They have also defined KPI attainment. The dashboard, Genie Agents, and Genie One can use that shared context.
 
 Point to the value cards, the value at risk chart, and the executive intervention list.
 
-Do not read every number. Establish that the dashboard and the agents use the same governed data.
+Do not read every number. Establish the decision the audience will follow and show that the dashboard and agents use the same governed data.
 
 ## 2. Ask the cross domain question in Genie One. Core. Three minutes.
 
@@ -32,9 +47,13 @@ Open Genie One and ask:
 
 Let the answer finish. Look for target value, realized value, forecast value, value at risk, red initiatives, and named owners.
 
+Follow Network footprint redesign for the rest of the demo. This initiative has a value signal and delivery issues. It also has an accountable owner and steering evidence.
+
 Say:
 
 > This question crosses finance, delivery, and operating context. Genie One searched the Genie Ontology, selected sources that I can access, and returned one answer. The citation icons show which sources supported each part.
+
+> We have detected the signal. The next steps will explain it and connect it to recorded evidence. We will then identify the action and test the answer.
 
 Open the citation for Value at Risk or Realized Value to Date.
 
@@ -72,6 +91,8 @@ Open the Northstar Value Realization Agent and ask:
 
 Check that the answer gives a ranked list with initiative, business unit, owner, health, target, forecast, and value at risk.
 
+Keep Network footprint redesign visible when it appears. The next section will connect its financial signal to delivery evidence and an executive decision.
+
 Open the generated SQL.
 
 Say:
@@ -94,7 +115,7 @@ Then ask:
 
 The agent uses the current metric view for the first question and the cumulative monthly records for the second question. Do not add the July and August values together.
 
-## 5. Move from status to intervention. Core. Three minutes.
+## 5. Move from status to accountable action. Core. Three minutes.
 
 Open the Northstar Delivery Risk Agent and ask:
 
@@ -111,6 +132,16 @@ Open the result for the Network steering memo.
 Say:
 
 > The structured data tells us that the initiative is red and 68 days late. The steering evidence says that site consultation is late and that leaders need to decide the closure cost estimate. We can review the measure and its management context together.
+
+Ask:
+
+> Who owns the next action for Network footprint redesign, what is due, and what decision must the executive committee make?
+
+Check that the answer separates the recorded mitigation and decision request from any additional analysis.
+
+Say:
+
+> We started with a portfolio value signal. Leadership now has the accountable owner, the recorded next action, and the decision that is due.
 
 Do not claim that the document proves a financial loss. It records the reason for intervention.
 
@@ -130,6 +161,10 @@ Say:
 
 ## 7. Show how quality is managed. Core. Three minutes.
 
+Say:
+
+> We have explained the issue and named the action. The remaining question is whether leaders can trust the answer and get the same governed result in the next review.
+
 Open the Benchmarks tab in one agent.
 
 Show a benchmark question, its SQL answer, and the latest evaluation result.
@@ -147,6 +182,8 @@ If time permits, show the setup job. Point out the data checks that run before t
 Return to the dashboard.
 
 Say:
+
+> We followed one management question from the portfolio signal to its drivers and source evidence. We identified the owner and next decision. We then checked the definition and calculation behind the answer. The benchmark confirmed the expected result.
 
 > We started with one decision area and a small set of measures that leaders must trust. A customer can replace the synthetic tables with its own value ledger, delivery system, and operating KPI sources. The domain owners then review the Pages, metric logic, agent sources, and benchmark questions.
 

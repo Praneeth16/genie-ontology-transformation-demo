@@ -38,11 +38,13 @@ Deployed on 23 September 2026 into a clean schema.
 - [x] A fresh clone installs its Python dependencies from public PyPI and deploys.
 - [x] `make destroy` deletes the three Genie Agents and stops at the bundle destroy
       confirmation when there is no terminal to answer it.
+- [x] The eight Pages import with Genie Code, one domain at a time, and publish in their
+      domain and subdomains. There is no public Pages API, so this stays a manual step.
+- [x] Genie One answers the Act 5 question with the governed figures and applies the decision
+      rule from the Transformation Value Office Page.
 - [x] `make benchmark` passes all 14 committed questions. A single question can fail on one
       run and pass on the next. See the note in `docs/DEPLOYMENT.md`.
 
 ## Not yet verified in a workspace
 
-- [ ] Importing and publishing the Pages, and the Page citation in Genie One (Acts 4 and 5 of
-      `DEMO_SCRIPT.md`). There is no public Pages API, so this stays a manual step.
 - [ ] Dashboard and benchmark screenshots for this README.

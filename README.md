@@ -9,6 +9,8 @@ automated benchmark suite on top of it.
 Northstar Group is fictional. This repository contains no customer data and no internal
 Databricks content.
 
+![The Enterprise Transformation Value Office dashboard](docs/images/dashboard.png)
+
 ## Contents
 
 - [What you get](#what-you-get)
@@ -163,6 +165,11 @@ make benchmark \
 The job starts a fresh conversation for each of the fourteen committed questions, compares
 the result with the committed SQL answer, and fails if any answer is wrong or still needs
 manual review. A run uses model inference and takes several minutes.
+
+![A benchmark run for the Value Realization Agent, comparing the generated SQL and result with the committed answer](docs/images/benchmark-run.png)
+
+The quarter end question shown above is the one that guards the semiadditive rule. Each
+quarter returns its closing month, rising to 508.36 million dollars, and never a sum.
 
 ## Import the Pages
 

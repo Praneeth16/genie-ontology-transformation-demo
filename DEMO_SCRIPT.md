@@ -200,6 +200,10 @@ Say:
 
 If the answer does not return the expected numeric detail, open the cited dashboard or the focused agent. Do not hide the difference.
 
+Genie One can describe the portfolio gap between target and forecast, about 29.8 million dollars, as value at risk. The governed Value at Risk is 36.8 million dollars, because it is calculated for each initiative and a gain above target on one initiative does not offset a shortfall on another. If this happens, use it:
+
+> This is exactly why the definition lives in the metric view. A general answer subtracted two totals. The governed measure applies the rule the finance owner approved, and every agent that uses it gets 36.8 million.
+
 Say:
 
 > Genie One found the right context. We will now open the focused governed source for the exact number.

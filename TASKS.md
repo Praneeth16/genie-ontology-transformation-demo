@@ -42,9 +42,6 @@ Deployed on 23 September 2026 into a clean schema.
       domain and subdomains. There is no public Pages API, so this stays a manual step.
 - [x] Genie One answers the Act 5 question with the governed figures and applies the decision
       rule from the Transformation Value Office Page.
-- [x] `make benchmark` passes all 14 committed questions. A single question can fail on one
-      run and pass on the next. See the note in `docs/DEPLOYMENT.md`.
-
-## Not yet verified in a workspace
-
-- [ ] Dashboard and benchmark screenshots for this README.
+- [x] `make benchmark` passes all 14 committed questions, including after the agents were
+      deleted and recreated. A single question can fail on one run and pass on the next. See
+      the note in `docs/DEPLOYMENT.md`.

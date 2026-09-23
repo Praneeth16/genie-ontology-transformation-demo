@@ -182,6 +182,8 @@ definitions.
 ## Run the demo
 
 - `DEMO_SCRIPT.md` is the 20 minute customer talk track, with a 10 minute cut.
+- `GENIE_ONE_SCRIPT.md` runs the whole story in one Genie One conversation, eight prompts
+  deep, with the expected answers and the slips to watch for.
 - `QUESTION_BANK.md` lists every question to ask, where to ask it, and what a correct
   answer looks like.
 - `DEMO.md` explains the audience, story, and success criteria.
@@ -215,6 +217,7 @@ or the regression job will tell you that you forgot.
 | `resources` | Bundle resource and job definitions. |
 | `DEMO_SCRIPT.md` | The external customer talk track. |
 | `QUESTION_BANK.md` | Questions for the demo and for customer discovery. |
+| `GENIE_ONE_SCRIPT.md` | The single chat Genie One script. |
 
 ## Product status
 

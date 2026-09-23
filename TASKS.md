@@ -33,6 +33,9 @@ Deployed on 23 September 2026 into a clean schema.
       the three Genie Agents, and every setup check passes.
 - [x] A second deploy updates the three agents in place rather than creating copies.
 - [x] When the account has reached its domain limit, the setup warns and continues.
+- [x] A fresh clone installs its Python dependencies from public PyPI and deploys.
+- [x] `make destroy` deletes the three Genie Agents and stops at the bundle destroy
+      confirmation when there is no terminal to answer it.
 - [x] `make benchmark` passes all 14 committed questions. A single question can fail on one
       run and pass on the next. See the note in `docs/DEPLOYMENT.md`.
 

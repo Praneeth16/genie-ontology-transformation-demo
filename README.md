@@ -142,9 +142,9 @@ make destroy \
 ```
 
 This deletes the three Genie Agents first, because the bundle does not track them, and
-then runs `databricks bundle destroy`, which asks for confirmation before it removes the
-jobs, the dashboard, and the schema with all its data. Use the same `SCHEMA` value you
-deployed with.
+then runs `databricks bundle destroy`. Run it in an interactive terminal, because the
+destroy step asks for confirmation before it removes the jobs, the dashboard, and the
+schema with all its data. Use the same `SCHEMA` value you deployed with.
 
 The governed tag policies and the domain are account wide, so `make destroy` leaves them in
 place. Delete them in the account console if nothing else uses them.

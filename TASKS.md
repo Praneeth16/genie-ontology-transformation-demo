@@ -33,6 +33,8 @@ Deployed on 23 September 2026 into a clean schema.
       the three Genie Agents, and every setup check passes.
 - [x] A second deploy updates the three agents in place rather than creating copies.
 - [x] When the account has reached its domain limit, the setup warns and continues.
+- [x] Once the account had room, a rerun of the setup job created the domain and its three
+      subdomains.
 - [x] A fresh clone installs its Python dependencies from public PyPI and deploys.
 - [x] `make destroy` deletes the three Genie Agents and stops at the bundle destroy
       confirmation when there is no terminal to answer it.
@@ -41,7 +43,6 @@ Deployed on 23 September 2026 into a clean schema.
 
 ## Not yet verified in a workspace
 
-- [ ] Creating the domain and subdomains. The test account was at its domain limit.
 - [ ] Importing and publishing the Pages, and the Page citation in Genie One (Acts 4 and 5 of
-      `DEMO_SCRIPT.md`). There is no public Pages API, and each Page needs a domain.
+      `DEMO_SCRIPT.md`). There is no public Pages API, so this stays a manual step.
 - [ ] Dashboard and benchmark screenshots for this README.

@@ -1,6 +1,6 @@
 # Public sources
 
-The repository uses public sources for every published product claim. Internal Databricks material helped with demo design but is not cited or copied here.
+The repository uses public sources for every product claim.
 
 Checked on 21 September 2026.
 
@@ -29,5 +29,5 @@ Checked on 21 September 2026.
 - Pages Beta status, storage, and encryption guidance.
 - Genie Agent benchmark limits and required permissions.
 - Support for the Genie Agent export format used by the workspace.
-- The account limit on domains and subdomains combined, which `src/ontology/deploy_domains.py` reads as 300.
+- The account limit on domains and subdomains combined. The documentation states 300, and some accounts hold more.
 - Metric view YAML support for `joins`, `window` measures, and the `fields` keyword in the target workspace.

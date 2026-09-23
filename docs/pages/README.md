@@ -1,6 +1,6 @@
 # Import the Pages
 
-The setup job creates the `Enterprise Transformation` domain and its three subdomains. Complete this short Page import step after `make deploy` finishes.
+The setup job creates the `Enterprise Transformation` domain and its three subdomains when the account allows it. Check the output of its `deploy_domains` task first. If that task printed a warning, fix the cause from `docs/DEPLOYMENT.md` and rerun the setup job before you import the Pages, because each Page belongs to a domain.
 
 ## Check the domain
 

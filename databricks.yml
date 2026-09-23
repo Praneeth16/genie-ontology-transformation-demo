@@ -14,10 +14,6 @@ variables:
     description: Serverless SQL warehouse used by the dashboard and Genie Agents.
     default: CHANGE_ME_WAREHOUSE_ID
 
-  as_of_date:
-    description: Fixed reporting date for deterministic synthetic data.
-    default: "2026-08-31"
-
   agent_parent_path:
     description: Workspace folder where the setup job creates the Genie Agents.
     default: /Workspace/Users/${workspace.current_user.userName}/genie-ontology-transformation-demo

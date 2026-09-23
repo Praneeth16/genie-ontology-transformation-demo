@@ -15,6 +15,7 @@ Databricks content.
 - [Which ontology capabilities this demo models](#which-ontology-capabilities-this-demo-models)
 - [Before you start](#before-you-start)
 - [Deploy it](#deploy-it)
+- [Remove it](#remove-it)
 - [Run the benchmarks](#run-the-benchmarks)
 - [Import the Pages](#import-the-pages)
 - [Run the demo](#run-the-demo)
@@ -65,19 +66,28 @@ than the context you model.
 
 ## Before you start
 
-You need:
+Plan about an hour for the first run: a few minutes of setup, about ten minutes for the
+setup job, several minutes for the benchmarks, and the manual Page import.
 
-- Python 3.12, [`uv`](https://docs.astral.sh/uv/), `jq`, and `make`
-- Databricks CLI 1.17 or later (tested with 1.17.0)
-- A Databricks workspace with serverless compute, and Genie, Unity Catalog metric views,
-  Domains, and Pages enabled
-- An existing Unity Catalog catalog you can create a schema in
-- A serverless SQL warehouse ID
-- Permission to create jobs, dashboards, Genie Agents, and governed tag policies, plus
-  `MANAGE DISCOVERY` to create the domain
+On your machine you need Python 3.12, [`uv`](https://docs.astral.sh/uv/), `jq`, `make`, and
+Databricks CLI 1.17 or later (tested with 1.17.0).
 
-`docs/DEPLOYMENT.md` lists the permissions in detail and covers what happens when one of
-them is missing.
+In the workspace, confirm each of these before the first deploy. The first four are
+workspace or account settings, so an admin usually has to turn them on.
+
+| Requirement | Who can provide it | Without it |
+|---|---|---|
+| Serverless compute and a serverless SQL warehouse | Workspace admin | Nothing deploys. |
+| Genie Agents, with benchmarks | Workspace admin | No agents and no benchmark run. |
+| Unity Catalog metric views with YAML version 1.1 | Workspace admin | The setup job fails at the metric views. |
+| Genie Ontology, Genie One, Domains, and Pages previews | Account admin, in the account previews page | Acts 4 and 5 of the demo script cannot run. Everything else works. |
+| An existing catalog where you can create a schema | Catalog owner or metastore admin | Nothing deploys. |
+| Permission to create jobs, dashboards, and Genie Agents | Workspace admin | Nothing deploys. |
+| Permission to create governed tag policies | Account admin | No domain tags. The setup job warns and continues. |
+| `MANAGE DISCOVERY` and a free domain slot for the domain and three subdomains | Account admin | No domain. The setup job warns and continues. |
+
+If a preview is not listed in your account, ask your Databricks account team to enable it.
+`docs/DEPLOYMENT.md` has the detail and the recovery step for each warning.
 
 Check your setup locally first. This validates the metric view YAML without touching a
 workspace.
@@ -109,13 +119,35 @@ into the repository, so the same clone deploys to several workspaces.
 
 The setup keeps going when the account cannot give it everything:
 
-- No room for the domain and all three subdomains, or no authorization to access domains?
-  It creates none of them, keeps the governed tags, and continues to the agents. It never
-  deletes an existing domain.
+- The account has reached its domain limit, or the identity cannot access domains? It
+  keeps the governed tags, prints a warning, and continues to the agents. It never deletes
+  an existing domain.
 - Cannot create the governed tag policies at all? The data checks report a warning instead
   of failing, and the agents and dashboard still work.
 
 Either way the run prints what it skipped and `docs/DEPLOYMENT.md` has the recovery step.
+Read the output of the `deploy_domains` task before you plan to show the domain.
+
+If the schema already exists from an earlier deployment that this clone did not create,
+the deploy fails with `SCHEMA_ALREADY_EXISTS`. Choose a new `SCHEMA` name, or drop the old
+schema if you own it.
+
+## Remove it
+
+```bash
+make destroy \
+  PROFILE=YOUR_PROFILE \
+  CATALOG=YOUR_CATALOG \
+  WAREHOUSE_ID=YOUR_SQL_WAREHOUSE_ID
+```
+
+This deletes the three Genie Agents first, because the bundle does not track them, and
+then runs `databricks bundle destroy`, which asks for confirmation before it removes the
+jobs, the dashboard, and the schema with all its data. Use the same `SCHEMA` value you
+deployed with.
+
+The governed tag policies and the domain are account wide, so `make destroy` leaves them in
+place. Delete them in the account console if nothing else uses them.
 
 ## Run the benchmarks
 
@@ -189,11 +221,12 @@ supported regions change. Read `docs/SOURCES.md` before a customer session.
 a small source set, which makes a wrong answer easy to trace and to benchmark.
 
 **A fixed reporting date of 31 August 2026.** Deterministic data keeps query results and
-benchmark results stable across deployments and workspaces.
+benchmark results stable across deployments and workspaces. The agents' verified SQL and
+benchmark answers use this date, so it is not a bundle variable.
 
-**Relationships in the metric views.** Earlier versions of this demo flattened everything
-into one hand-written SQL view. Modeling the joins in Unity Catalog is the pattern the
-ontology is for, and it is what a customer should copy.
+**Relationships in the metric views.** The joins are declared in the metric views rather
+than written into one hand-written SQL view. Modeling the relationships in Unity Catalog is
+the pattern the ontology is for, and it is what a customer should copy.
 
 **The committed JSON is the source of truth for the agents.** A deployment replaces the
 configuration of the matching agent in the demo folder. Export and merge any workspace edits

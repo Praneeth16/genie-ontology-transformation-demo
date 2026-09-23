@@ -6,12 +6,12 @@ WAREHOUSE_ID ?= CHANGE_ME_WAREHOUSE_ID
 
 BUNDLE_ENV = BUNDLE_VAR_catalog="$(CATALOG)" BUNDLE_VAR_schema="$(SCHEMA)" BUNDLE_VAR_warehouse_id="$(WAREHOUSE_ID)"
 
-.PHONY: check check-config validate deploy setup benchmark
+.PHONY: check check-config validate deploy setup benchmark destroy
 
 check:
-	uv run ruff check src tests
-	uv run python -m compileall -q src tests
-	uv run python tests/check_metric_views.py
+	uv run --frozen ruff check src tests
+	uv run --frozen python -m compileall -q src tests
+	uv run --frozen python tests/check_metric_views.py
 	find src/genie -maxdepth 1 -name '*.json' -print0 | xargs -0 -n1 jq empty
 	jq empty src/dashboards/transformation_value_office.lvdash.json
 
@@ -33,3 +33,7 @@ setup: check-config
 
 benchmark: check-config
 	$(BUNDLE_ENV) databricks bundle run regression_test_genie_agents -t $(TARGET) --profile $(PROFILE)
+
+destroy: check-config
+	DATABRICKS_CONFIG_PROFILE=$(PROFILE) uv run --frozen python src/genie/delete_agents.py --manifest src/genie/manifest.json
+	$(BUNDLE_ENV) databricks bundle destroy -t $(TARGET) --profile $(PROFILE)

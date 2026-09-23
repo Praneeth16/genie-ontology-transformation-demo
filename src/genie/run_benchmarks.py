@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.errors import DatabricksError, NotFound, PermissionDenied
 from databricks.sdk.service.dashboards import EvaluationStatusType
 
 TERMINAL_STATES = {
@@ -64,7 +65,7 @@ def space_parent_path(client: WorkspaceClient, space: Any) -> str | None:
         return normalized_path(space.parent_path)
     try:
         return normalized_path(client.genie.get_space(space.space_id).parent_path)
-    except Exception as exc:  # noqa: BLE001  # A space may be readable only by its owner.
+    except (NotFound, PermissionDenied) as exc:  # A space may be readable only by its owner.
         print(
             f"WARNING: could not read the folder of Genie space {space.space_id}: {exc}. "
             "Treating it as outside this deployment."
@@ -125,7 +126,14 @@ def main() -> None:
             failures.append(f"{title}: agent was not found in {args.parent_path}")
             continue
 
-        run = client.genie.genie_create_eval_run(space.space_id)
+        try:
+            run = client.genie.genie_create_eval_run(space.space_id)
+        except DatabricksError as exc:
+            failures.append(
+                f"{title}: could not start a benchmark run: {exc}. Check that this "
+                "identity can manage the agent and that Genie benchmarks are enabled."
+            )
+            continue
         deadline = time.monotonic() + args.timeout_seconds
         while run.eval_run_status not in TERMINAL_STATES:
             if time.monotonic() >= deadline:

@@ -30,7 +30,7 @@ resources:
             parameters:
               - --catalog=${var.catalog}
               - --schema=${resources.schemas.transformation_demo.name}
-              - --as-of-date=${var.as_of_date}
+              - --as-of-date=2026-08-31
 
         - task_key: validate_demo
           depends_on:
@@ -41,7 +41,7 @@ resources:
             parameters:
               - --catalog=${var.catalog}
               - --schema=${resources.schemas.transformation_demo.name}
-              - --as-of-date=${var.as_of_date}
+              - --as-of-date=2026-08-31
 
         - task_key: deploy_genie_agents
           depends_on:

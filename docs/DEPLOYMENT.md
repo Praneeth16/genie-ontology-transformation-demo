@@ -39,7 +39,7 @@ The deploy command runs four stages.
 3. It creates the governed tags and the domain records when the account has room.
 4. It creates the data and semantic layer, applies the domain tags to the catalog assets, validates the data, and creates or updates the Genie Agents.
 
-Domains and subdomains share one account wide limit of 300 combined. The setup checks whether the account has room for the root and all three subdomains before it creates any of them. If there is not enough room, the setup keeps the governed tags, prints a warning, and continues to the Genie Agents. A curator must remove unused domains or choose another account before rerunning the domain task. The setup never deletes an existing domain.
+Domains and subdomains share one account wide limit. The documented limit is 300, but some accounts hold more, so the setup does not predict the limit from a count. It creates the root domain and then each subdomain. If the account refuses, which a full account does with an internal error, the setup keeps the governed tags, prints a warning with the current domain count, and continues to the Genie Agents. A curator must remove unused domains or choose another account before rerunning the setup job. The setup never deletes an existing domain.
 
 The same warning path applies when the deploying identity is not authorized to access domains. The setup keeps the governed tags and continues. Ask an account admin to enable Domains or grant `MANAGE DISCOVERY`, then rerun the setup job to create the domain and subdomains.
 
@@ -53,7 +53,7 @@ The setup job applies these tags through the public Beta workspace tag API becau
 
 ## Pages and domain
 
-Follow [pages/README.md](pages/README.md) after the bundle deploys. Page review and publication are the only manual setup steps.
+Follow [pages/README.md](pages/README.md) after the bundle deploys. Page import, review, and publication are the only manual setup steps.
 
 ## Regression test
 
@@ -86,7 +86,22 @@ bundle variable to move the folder.
 
 Do not commit personal access tokens, workspace configuration files, or exported customer data.
 
+## Remove the demo
+
+```bash
+make destroy \
+  PROFILE=YOUR_PROFILE \
+  CATALOG=YOUR_CATALOG \
+  WAREHOUSE_ID=YOUR_SQL_WAREHOUSE_ID
+```
+
+Pass the same `SCHEMA` you deployed with. The command deletes the three Genie Agents in the demo folder, because they are not part of the bundle state, then runs `databricks bundle destroy`. That asks for confirmation and removes the jobs, the dashboard, and the schema with its data.
+
+The governed tag policies, the domain, and any Pages you imported are account or workspace wide. Remove them by hand if nothing else uses them.
+
 ## Troubleshooting
+
+If the deploy fails with `SCHEMA_ALREADY_EXISTS`, the schema was created by an earlier deployment that this bundle state does not own. Choose a new `SCHEMA` value, or drop the old schema if you own it.
 
 Run `make check` first. It renders every metric view definition and validates the YAML, the business definitions, the join declarations, and the window rules without a workspace. Most metric view problems surface there.
 

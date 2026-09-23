@@ -169,8 +169,8 @@ Say:
 > needs risk and value together, the agent does not have to invent a join, and it cannot get
 > the grain wrong. Add a new fact next quarter and every existing measure keeps working.
 
-> Earlier versions of this demo flattened all of that into one seventy line SQL view. That
-> view is exactly the thing an ontology replaces.
+> Many teams keep these relationships in a long hand-written SQL view. That view is exactly
+> the thing an ontology replaces.
 
 Say:
 

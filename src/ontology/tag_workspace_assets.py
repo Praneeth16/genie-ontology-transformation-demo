@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.errors import NotFound, PermissionDenied
 from databricks.sdk.service.tags import TagAssignment
 
 
@@ -59,7 +60,7 @@ def space_parent_path(client: WorkspaceClient, space: Any) -> str | None:
         return normalized_path(space.parent_path)
     try:
         return normalized_path(client.genie.get_space(space.space_id).parent_path)
-    except Exception as exc:  # noqa: BLE001  # A space may be readable only by its owner.
+    except (NotFound, PermissionDenied) as exc:  # A space may be readable only by its owner.
         print(
             f"WARNING: could not read the folder of Genie space {space.space_id}: {exc}. "
             "Treating it as outside this deployment."

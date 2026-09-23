@@ -1,11 +1,10 @@
-# Build status
+# Verification status
 
-Last updated 21 September 2026.
+Last updated 23 September 2026.
 
-## Verified locally
+## Checked on every change
 
-These pass with `make check` and `databricks bundle validate`, with no workspace needed for
-the first three.
+`make check` runs these with no workspace needed.
 
 - [x] Ruff and byte compile checks for `src` and `tests`.
 - [x] Metric view YAML renders, parses, and holds its contract: version 1.1, the `fields`
@@ -13,47 +12,39 @@ the first three.
       undeclared or unused joins, and a complete order, range, and semiadditive rule on every
       window measure.
 - [x] Genie Agent and dashboard JSON parse.
-- [x] `databricks bundle validate` passes for the `dev` target.
 
-## Verified in a workspace before the joins and window rework
+## Checked on every setup run
 
-These were confirmed against the earlier version of the semantic layer, which flattened the
-entity graph into a single SQL view.
+The `validate_demo` task fails the setup job if any of these change.
 
-- [x] Deployed the bundle and passed the data and semantic checks.
-- [x] Confirmed the dashboard datasets and visualizations through the workspace API.
-- [x] Confirmed all three agents and their committed context in the workspace.
-- [x] Created the four governed tag policies required by the domain design.
-- [x] Ran the benchmark job and recorded the result.
-- [x] Deployed from a clean public clone into a second workspace and passed all benchmarks.
+- [x] Row counts, one row per initiative in each summary view, keys, and certification.
+- [x] Every figure the demo script quotes: 645 million dollar target, 548.5 million dollar
+      plan to date, 508.36 million dollars realized, 615.18 million dollar forecast, 36.84
+      million dollars at risk, 95.4 percent attainment, a 3.49 times forecast return, four
+      red initiatives, and 68 days slipped on Network footprint redesign.
+- [x] The semiadditive period end measures return the closing month rather than a sum.
+- [x] Domain tag membership of 16, 6, 9, and 3 assets, when the tag policies exist.
 
-## Verified in a workspace after the joins and window rework
+## Verified in a workspace
 
-Deployed to a live workspace on 21 September 2026, into a clean schema.
+Deployed on 23 September 2026 into a clean schema.
 
-- [x] `make deploy` creates all four metric views, including the `joins` blocks and the
-      window measures.
-- [x] The governed measures return the committed values: 645 million dollar target,
-      615.18 million dollar forecast, 36.84 million dollars at risk, 95.4 percent attainment.
-- [x] `mv_value_trend` period end measures return one closing row per quarter, rising to the
-      508.36 million dollar August closing and never exceeding the approved target.
-- [x] The certification tags apply to all twelve curated tables and views, now that the
-      metric views are tagged as `VIEW` rather than `TABLE`.
-- [x] Domain tag membership matches the design: 16, 6, 9, and 3 assets.
-- [x] `make benchmark` passes all 14 committed questions. One Operating Performance question
-      failed on the first attempt and passed on the retry, so the suite is not deterministic.
-      See the note in `docs/DEPLOYMENT.md`.
+- [x] `make deploy` creates the schema, the four metric views, the dashboard, the jobs, and
+      the three Genie Agents, and every setup check passes.
+- [x] A second deploy updates the three agents in place rather than creating copies.
+- [x] When the account has reached its domain limit, the setup warns and continues.
+- [x] Once the account had room, a rerun of the setup job created the domain and its three
+      subdomains.
+- [x] A fresh clone installs its Python dependencies from public PyPI and deploys.
+- [x] `make destroy` deletes the three Genie Agents and stops at the bundle destroy
+      confirmation when there is no terminal to answer it.
+- [x] The eight Pages import with Genie Code, one domain at a time, and publish in their
+      domain and subdomains. There is no public Pages API, so this stays a manual step.
+- [x] Genie One answers the Act 5 question with the governed figures and applies the decision
+      rule from the Transformation Value Office Page.
+- [x] `make benchmark` passes all 14 committed questions. A single question can fail on one
+      run and pass on the next. See the note in `docs/DEPLOYMENT.md`.
 
-## Needs a workspace run
+## Not yet verified in a workspace
 
-- [ ] Create the live domain and subdomains in an account with four available domain slots.
-- [ ] Import and publish the Pages.
-
-## Publication
-
-- [x] Complete the plain writing review passes.
-- [x] Create the revision HTML for the demo script.
-- [x] Initialize Git and commit the repository.
-- [x] Create the public repository.
-- [x] Push the main branch and verify the public URL.
-- [ ] Add dashboard and benchmark run screenshots to the README.
+- [ ] Dashboard and benchmark screenshots for this README.

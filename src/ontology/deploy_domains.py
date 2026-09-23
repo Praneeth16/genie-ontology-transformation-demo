@@ -13,10 +13,6 @@ from databricks.sdk.service.domains import Domain
 from databricks.sdk.service.tags import TagPolicy
 from google.protobuf.field_mask_pb2 import FieldMask
 
-# Domains and subdomains share one account wide limit. See the Databricks
-# resource limits page: "Domain | 300 | Account".
-MAX_DOMAINS_PER_ACCOUNT = 300
-
 
 def load_definition(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as handle:
@@ -75,17 +71,18 @@ def upsert_domain(
 
     try:
         created = client.domains.create_domain(domain)
-    except InternalError:
-        if len(existing_by_key) >= MAX_DOMAINS_PER_ACCOUNT:
-            print(
-                "WARNING: Domain creation was skipped because this account already "
-                f"returns {len(existing_by_key)} domains and subdomains, at or above "
-                f"the account limit of {MAX_DOMAINS_PER_ACCOUNT}. The governed tag "
-                "exists, and the remaining demo setup can continue. Remove an unused "
-                "domain or use another account before running this task again."
-            )
-            return None
-        raise
+    except (BadRequest, InternalError) as exc:
+        # A full account answers with an internal error rather than a clear
+        # limit error. The documented limit is 300, but accounts can hold more,
+        # so the count alone cannot predict the failure.
+        print(
+            f"WARNING: Could not create domain {spec['tag_key']}: {exc}. This account "
+            f"returns {len(existing_by_key)} domains and subdomains and has probably "
+            "reached its domain limit. The governed tags exist, and the remaining demo "
+            "setup can continue. Remove unused domains or use another account, then "
+            "run this task again."
+        )
+        return None
     print(f"Created domain: {spec['tag_key']} ({created.domain_id})")
     existing_by_key[key] = created
     return created
@@ -130,26 +127,6 @@ def main() -> None:
             (domain.tag_key, domain.parent_domain_id): domain
             for domain in client.domains.list_domains(page_size=500)
         }
-
-        existing_root = existing_by_key.get((root_spec["tag_key"], None))
-        if existing_root is None:
-            missing_domain_count = 1 + len(subdomain_specs)
-        else:
-            missing_domain_count = sum(
-                (subdomain_spec["tag_key"], existing_root.domain_id) not in existing_by_key
-                for subdomain_spec in subdomain_specs
-            )
-        if len(existing_by_key) + missing_domain_count > MAX_DOMAINS_PER_ACCOUNT:
-            available = max(MAX_DOMAINS_PER_ACCOUNT - len(existing_by_key), 0)
-            print(
-                "WARNING: Domain creation was skipped before making any changes because "
-                f"the account returns {len(existing_by_key)} domains and subdomains, but "
-                f"this demo needs {missing_domain_count} more and only {available} slots "
-                "remain. The governed tags exist, and the remaining setup can continue. "
-                "Remove unused domains or use another account before running this task again."
-            )
-            return
-
         root = upsert_domain(client, root_spec, existing_by_key)
         if root is None:
             return

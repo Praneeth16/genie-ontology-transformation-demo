@@ -31,12 +31,6 @@ def expect_equal(label: str, actual: Any, expected: Any) -> None:
     print(f"PASS {label}: {actual}")
 
 
-def expect_between(label: str, actual: float, lower: float, upper: float) -> None:
-    if not lower <= actual <= upper:
-        raise AssertionError(f"{label}: expected {lower} to {upper}, got {actual}")
-    print(f"PASS {label}: {actual}")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--catalog", required=True)
@@ -99,17 +93,29 @@ def main() -> None:
         SELECT
           MEASURE(`Initiative Count`) AS initiatives,
           MEASURE(`Target Value`) AS target_value,
+          MEASURE(`Planned Value to Date`) AS planned_value,
+          MEASURE(`Realized Value to Date`) AS realized_value,
           MEASURE(`Forecast Value at Completion`) AS forecast_value,
-          MEASURE(`Forecast Attainment`) AS forecast_attainment
+          MEASURE(`Value at Risk`) AS value_at_risk,
+          MEASURE(`Forecast Attainment`) AS forecast_attainment,
+          MEASURE(`Forecast ROI`) AS forecast_roi
         FROM {fq}.mv_value_realization
         """
     ).first()
     if value_row is None:
         raise AssertionError("Value realization metric view returned no rows")
+    # DEMO_SCRIPT.md and QUESTION_BANK.md quote these figures, so a data change
+    # that moves one of them must fail here rather than in front of an audience.
     expect_equal("metric initiative count", value_row.initiatives, 12)
     expect_equal("metric target value", float(value_row.target_value), 645_000_000.0)
-    expect_between("metric forecast value", float(value_row.forecast_value), 610_000_000, 620_000_000)
-    expect_between("metric forecast attainment", float(value_row.forecast_attainment), 0.94, 0.97)
+    expect_equal("metric planned value", round(float(value_row.planned_value), -5), 548_500_000.0)
+    expect_equal(
+        "metric realized value", round(float(value_row.realized_value), -4), 508_360_000.0
+    )
+    expect_equal("metric forecast value", float(value_row.forecast_value), 615_180_000.0)
+    expect_equal("metric value at risk", float(value_row.value_at_risk), 36_840_000.0)
+    expect_equal("metric forecast attainment", round(float(value_row.forecast_attainment), 3), 0.954)
+    expect_equal("metric forecast return", round(float(value_row.forecast_roi), 2), 3.49)
 
     delivery_row = spark.sql(
         f"""
@@ -125,6 +131,18 @@ def main() -> None:
     expect_equal("red initiatives", delivery_row.red_initiatives, 4)
     expect_equal("open critical risks", delivery_row.open_critical_risks, 4)
     expect_equal("overdue critical risks", delivery_row.overdue_critical_risks, 4)
+    expect_equal(
+        "Network footprint redesign days slipped",
+        scalar(
+            spark,
+            f"""
+            SELECT days_slipped
+            FROM {fq}.v_initiative_current
+            WHERE initiative_name = 'Network footprint redesign'
+            """,
+        ),
+        68,
+    )
 
     trend_row = spark.sql(
         f"""

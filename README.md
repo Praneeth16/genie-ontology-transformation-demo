@@ -182,8 +182,9 @@ definitions.
 ## Run the demo
 
 - `DEMO_SCRIPT.md` is the 20 minute customer talk track, with a 10 minute cut.
-- `GENIE_ONE_SCRIPT.md` runs the whole story in one Genie One conversation, eight prompts
-  deep, with the expected answers and the slips to watch for.
+- `GENIE_ONE_SCRIPT.md` runs the whole story in one Genie One conversation, eleven prompts
+  from the headline number to a skill, an agent, and a monthly schedule, with the expected
+  answers and the slips to watch for.
 - `QUESTION_BANK.md` lists every question to ask, where to ask it, and what a correct
   answer looks like.
 - `DEMO.md` explains the audience, story, and success criteria.
